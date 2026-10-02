@@ -5,3 +5,4 @@ scikit-learn
 joblib
 pydantic
 aiofiles
+python-jose[cryptography]
