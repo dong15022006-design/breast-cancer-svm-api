@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breast Cancer SVM Demo</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        h1 { color: #2d3748; margin-bottom: 8px; font-size: 28px; }
+        .subtitle { color: #718096; margin-bottom: 30px; font-size: 14px; }
+        .warning {
+            background: #fff5f5;
+            border-left: 4px solid #f56565;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #742a2a;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 4px;
+        }
+        input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        input:focus { outline: none; border-color: #667eea; }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .result { margin-top: 24px; padding: 24px; border-radius: 12px; display: none; }
+        .result.show { display: block; }
+        .result.malignant { background: #fed7d7; border: 2px solid #f56565; }
+        .result.benign { background: #c6f6d5; border: 2px solid #48bb78; }
+        .result h2 { margin-bottom: 12px; font-size: 22px; }
+        .result.malignant h2 { color: #742a2a; }
+        .result.benign h2 { color: #22543d; }
+        .prob-bar {
+            height: 24px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .prob-fill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🩺 Breast Cancer SVM Demo</h1>
+        <p class="subtitle">Nhập 30 đặc trưng để dự đoán (giá trị mẫu đã điền sẵn)</p>
+
+        <div class="warning">
+            ⚠️ <strong>Cảnh báo:</strong> Đây là demo giáo dục. Kết quả KHÔNG thay thế chẩn đoán y khoa.
+        </div>
+
+        <form id="predictForm">
+            <div class="features-grid" id="featuresGrid"></div>
+            <button type="submit" id="submitBtn">🔍 Dự đoán</button>
+        </form>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        const SAMPLE = {
+            "mean radius": 17.99, "mean texture": 10.38, "mean perimeter": 122.8,
+            "mean area": 1001.0, "mean smoothness": 0.1184, "mean compactness": 0.2776,
+            "mean concavity": 0.3001, "mean concave points": 0.1471, "mean symmetry": 0.2419,
+            "mean fractal dimension": 0.07871, "radius error": 1.095, "texture error": 0.9053,
+            "perimeter error": 8.589, "area error": 153.4, "smoothness error": 0.006399,
+            "compactness error": 0.04904, "concavity error": 0.05373, "concave points error": 0.01587,
+            "symmetry error": 0.03003, "fractal dimension error": 0.006193, "worst radius": 25.38,
+            "worst texture": 17.33, "worst perimeter": 184.6, "worst area": 2019.0,
+            "worst smoothness": 0.1622, "worst compactness": 0.6656, "worst concavity": 0.7119,
+            "worst concave points": 0.2654, "worst symmetry": 0.4601, "worst fractal dimension": 0.1189
+        };
+
+        const grid = document.getElementById("featuresGrid");
+        Object.entries(SAMPLE).forEach(([name, value]) => {
+            const div = document.createElement("div");
+            div.innerHTML = `<label>${name}</label><input type="number" step="any" name="${name}" value="${value}" required>`;
+            grid.appendChild(div);
+        });
+
+        document.getElementById("predictForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById("submitBtn");
+            const resultDiv = document.getElementById("result");
+            btn.disabled = true;
+            btn.textContent = "⏳ Đang dự đoán...";
+            resultDiv.classList.remove("show", "malignant", "benign");
+
+            const formData = new FormData(e.target);
+            const features = {};
+            formData.forEach((v, k) => features[k] = parseFloat(v));
+
+            try {
+                const res = await fetch(`${API_URL}/predict`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({features})
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(JSON.stringify(data.detail));
+
+                const isMalignant = data.predicted_class === 0;
+                const prob = isMalignant ? data.probability_malignant : data.probability_benign;
+
+                resultDiv.className = `result show ${isMalignant ? "malignant" : "benign"}`;
+                resultDiv.innerHTML = `
+                    <h2>${isMalignant ? "⚠️ Malignant (Ác tính)" : "✅ Benign (Lành tính)"}</h2>
+                    <p><strong>Xác suất:</strong> ${(prob * 100).toFixed(2)}%</p>
+                    <div class="prob-bar">
+                        <div class="prob-fill" style="width: ${prob * 100}%; background: ${isMalignant ? "#f56565" : "#48bb78"};">
+                            ${(prob * 100).toFixed(1)}%
+                        </div>
+                    </div>
+                    <p style="margin-top: 12px; font-size: 12px; color: #4a5568;">
+                        Malignant: ${(data.probability_malignant * 100).toFixed(2)}% |
+                        Benign: ${(data.probability_benign * 100).toFixed(2)}% |
+                        Model: ${data.model_version}
+                    </p>
+                    <p style="margin-top: 8px; font-size: 11px; font-style: italic;">${data.warning}</p>
+                `;
+            } catch (err) {
+                resultDiv.className = "result show malignant";
+                resultDiv.innerHTML = `<h2>❌ Lỗi</h2><p>${err.message}</p>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "🔍 Dự đoán";
+            }
+        });
+    </script>
+</body>
+</html>
