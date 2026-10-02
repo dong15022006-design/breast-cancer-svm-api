@@ -3,11 +3,13 @@ import json
 import joblib
 import numpy as np
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 MODEL_PATH = BASE_DIR / "artifacts/breast_cancer_svm.joblib"
 META_PATH = BASE_DIR / "artifacts/metadata.json"
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 model = joblib.load(MODEL_PATH)
 metadata = json.loads(META_PATH.read_text(encoding="utf-8"))
@@ -53,8 +55,10 @@ def build_vector(payload: PredictionRequest) -> np.ndarray:
         values.append(float(v))
     return np.array(values, dtype=float).reshape(1, -1)
 
-@app.get("/")
-def root():
+# ⚠️ Tất cả @app.get/post PHẢI đứng TRƯỚC app.mount
+
+@app.get("/api")
+def api_root():
     return {
         "service": "Breast Cancer SVM API",
         "docs": "/docs",
@@ -89,3 +93,6 @@ def predict(payload: PredictionRequest):
         model_version=metadata["model_version"],
         warning=metadata["warning"],
     )
+
+# ⚠️ MOUNT PHẢI ĐỨNG CUỐI CÙNG
+app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
