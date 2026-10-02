@@ -20,8 +20,8 @@ metadata = json.loads(META_PATH.read_text(encoding="utf-8"))
 FEATURE_NAMES = metadata["feature_names"]
 
 # ⚠️ ĐỔI USERNAME / PASSWORD / SECRET_KEY
-USERNAME = "admin"
-PASSWORD = "breast2026"
+USERNAME = "dong2006"
+PASSWORD = "dong123"
 SECRET_KEY = "doi-secret-key-nay-di-abc123xyz-2026"
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_HOURS = 8
