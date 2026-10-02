@@ -1,182 +1,420 @@
-<!DOCTYPE html>
+html_content = '''<!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Breast Cancer SVM Demo</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 40px;
-        }
-        h1 { color: #2d3748; margin-bottom: 8px; font-size: 28px; }
-        .subtitle { color: #718096; margin-bottom: 30px; font-size: 14px; }
-        .warning {
-            background: #fff5f5;
-            border-left: 4px solid #f56565;
-            padding: 12px 16px;
-            margin-bottom: 24px;
-            border-radius: 8px;
-            font-size: 13px;
-            color: #742a2a;
-        }
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #4a5568;
-            margin-bottom: 4px;
-        }
-        input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 13px;
-        }
-        input:focus { outline: none; border-color: #667eea; }
-        button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        button:hover { transform: translateY(-2px); }
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
-        .result { margin-top: 24px; padding: 24px; border-radius: 12px; display: none; }
-        .result.show { display: block; }
-        .result.malignant { background: #fed7d7; border: 2px solid #f56565; }
-        .result.benign { background: #c6f6d5; border: 2px solid #48bb78; }
-        .result h2 { margin-bottom: 12px; font-size: 22px; }
-        .result.malignant h2 { color: #742a2a; }
-        .result.benign h2 { color: #22543d; }
-        .prob-bar {
-            height: 24px;
-            background: rgba(255,255,255,0.5);
-            border-radius: 12px;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-        .prob-fill {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            padding-left: 8px;
-            color: white;
-            font-size: 12px;
-            font-weight: 600;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Breast Cancer SVM — Chẩn đoán hỗ trợ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);
+  background-attachment:fixed;
+  min-height:100vh;
+  padding:24px;
+  color:#1a202c;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Header */
+.hero{
+  max-width:1400px;margin:0 auto 28px;
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(20px);
+  border-radius:24px;
+  padding:32px 40px;
+  box-shadow:0 20px 60px rgba(0,0,0,.15);
+  display:flex;align-items:center;gap:24px;
+  animation:slideDown .6s ease-out;
+}
+@keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+
+.hero-icon{
+  font-size:52px;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:float 3s ease-in-out infinite;
+}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+.hero-content h1{
+  font-size:32px;font-weight:800;letter-spacing:-.5px;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:6px;
+}
+.hero-content p{color:#718096;font-size:15px}
+
+.badge{
+  margin-left:auto;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  color:#fff;padding:8px 18px;border-radius:99px;
+  font-size:13px;font-weight:600;
+  box-shadow:0 4px 14px rgba(102,126,234,.4);
+}
+
+/* Main grid */
+.main{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:start}
+@media(max-width:1024px){.main{grid-template-columns:1fr}}
+
+/* Cards */
+.card{
+  background:#fff;border-radius:24px;
+  box-shadow:0 12px 40px rgba(0,0,0,.1);
+  overflow:hidden;
+  animation:fadeIn .5s ease-out;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.card-header{
+  padding:20px 28px;
+  background:linear-gradient(135deg,#f7fafc,#edf2f7);
+  border-bottom:1px solid #e2e8f0;
+  display:flex;align-items:center;gap:12px;
+}
+.card-header h2{font-size:18px;font-weight:700;color:#2d3748}
+.card-header .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);box-shadow:0 0 0 4px rgba(102,126,234,.2)}
+
+.card-body{padding:28px}
+
+/* Warning */
+.warning{
+  background:linear-gradient(135deg,#fff5f5,#fed7d7);
+  border-left:4px solid #f56565;
+  padding:14px 18px;border-radius:10px;
+  font-size:13px;color:#742a2a;
+  margin-bottom:24px;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.warning::before{content:'⚠️';font-size:16px}
+
+/* Feature groups */
+.group{margin-bottom:28px}
+.group-title{
+  font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+  padding:6px 14px;border-radius:99px;display:inline-block;margin-bottom:16px;
+}
+.group-mean .group-title{background:#ebf4ff;color:#2b6cb0}
+.group-error .group-title{background:#fef3c7;color:#92400e}
+.group-worst .group-title{background:#fee2e2;color:#991b1b}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+
+.field label{
+  display:block;font-size:12px;font-weight:600;
+  color:#4a5568;margin-bottom:6px;
+  text-transform:capitalize;
+}
+.field input{
+  width:100%;padding:10px 14px;
+  border:2px solid #e2e8f0;border-radius:10px;
+  font-size:14px;font-family:inherit;
+  transition:all .2s;
+  background:#f7fafc;
+}
+.field input:focus{
+  outline:none;border-color:#667eea;
+  background:#fff;box-shadow:0 0 0 4px rgba(102,126,234,.1);
+}
+
+/* Predict button */
+.btn-predict{
+  width:100%;padding:16px 24px;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  color:#fff;border:none;border-radius:14px;
+  font-size:16px;font-weight:700;font-family:inherit;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all .3s;
+  box-shadow:0 8px 24px rgba(102,126,234,.35);
+  position:relative;overflow:hidden;
+}
+.btn-predict::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,#764ba2,#667eea);
+  opacity:0;transition:opacity .3s;
+}
+.btn-predict:hover::before{opacity:1}
+.btn-predict span{position:relative;z-index:1}
+.btn-predict:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(102,126,234,.5)}
+.btn-predict:active{transform:translateY(0)}
+.btn-predict:disabled{opacity:.7;cursor:not-allowed;transform:none}
+
+/* Spinner */
+.spinner{
+  width:18px;height:18px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin .8s linear infinite;
+  position:relative;z-index:1;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Result panel */
+.result-panel{position:sticky;top:24px}
+.result-empty{
+  text-align:center;padding:60px 20px;color:#a0aec0;
+}
+.result-empty .icon{font-size:64px;margin-bottom:12px;opacity:.4}
+.result-empty p{font-size:14px}
+
+.result-box{
+  border-radius:16px;padding:28px;
+  animation:popIn .4s cubic-bezier(.68,-.55,.27,1.55);
+}
+@keyframes popIn{0%{opacity:0;transform:scale(.9)}100%{opacity:1;transform:scale(1)}}
+
+.result-box.malignant{
+  background:linear-gradient(135deg,#fff5f5,#fed7d7);
+  border:2px solid #f56565;
+}
+.result-box.benign{
+  background:linear-gradient(135deg,#f0fff4,#c6f6d5);
+  border:2px solid #48bb78;
+}
+
+.result-icon{font-size:56px;text-align:center;margin-bottom:12px}
+.result-box h3{font-size:24px;text-align:center;margin-bottom:8px;font-weight:800}
+.result-box.malignant h3{color:#742a2a}
+.result-box.benign h3{color:#22543d}
+
+.result-label{text-align:center;color:#4a5568;font-size:13px;margin-bottom:16px;font-weight:600;letter-spacing:.5px}
+
+.prob-value{
+  font-size:42px;font-weight:800;text-align:center;
+  margin-bottom:4px;
+}
+.result-box.malignant .prob-value{color:#c53030}
+.result-box.benign .prob-value{color:#2f855a}
+
+.prob-bar{
+  height:12px;background:rgba(255,255,255,.6);
+  border-radius:99px;overflow:hidden;margin:16px 0;
+}
+.prob-fill{
+  height:100%;border-radius:99px;
+  animation:fillBar 1s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 0 12px currentColor;
+}
+.result-box.malignant .prob-fill{background:linear-gradient(90deg,#fc8181,#c53030);color:#c53030}
+.result-box.benign .prob-fill{background:linear-gradient(90deg,#68d391,#2f855a);color:#2f855a}
+@keyframes fillBar{from{width:0}}
+
+.meta-info{
+  background:rgba(255,255,255,.6);
+  border-radius:10px;padding:14px;margin-top:16px;
+  font-size:12px;line-height:1.8;color:#4a5568;
+}
+.meta-info strong{color:#2d3748}
+
+.disclaimer{
+  margin-top:12px;padding-top:12px;border-top:1px dashed rgba(0,0,0,.15);
+  font-size:11px;font-style:italic;color:#718096;text-align:center;
+}
+
+/* Footer */
+.footer{
+  max-width:1400px;margin:32px auto 0;
+  text-align:center;color:rgba(255,255,255,.8);
+  font-size:13px;
+  text-shadow:0 1px 2px rgba(0,0,0,.2);
+}
+.footer a{color:#fff;text-decoration:none;font-weight:600}
+
+/* Error box */
+.error-box{
+  background:#fff5f5;border:2px solid #f56565;
+  border-radius:12px;padding:20px;text-align:center;color:#742a2a;
+}
+.error-box h3{margin-bottom:8px;font-size:18px}
+
+/* Skeleton loading */
+.skeleton{
+  background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.5s infinite;
+  border-radius:8px;height:20px;margin:8px 0;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>🩺 Breast Cancer SVM Demo</h1>
-        <p class="subtitle">Nhập 30 đặc trưng để dự đoán (giá trị mẫu đã điền sẵn)</p>
 
-        <div class="warning">
-            ⚠️ <strong>Cảnh báo:</strong> Đây là demo giáo dục. Kết quả KHÔNG thay thế chẩn đoán y khoa.
-        </div>
+<div class="hero">
+  <div class="hero-icon">🩺</div>
+  <div class="hero-content">
+    <h1>Breast Cancer SVM</h1>
+    <p>Hệ thống hỗ trợ chẩn đoán dựa trên 30 đặc trưng tế bào</p>
+  </div>
+  <div class="badge">v1.0.0 · SVM RBF</div>
+</div>
 
-        <form id="predictForm">
-            <div class="features-grid" id="featuresGrid"></div>
-            <button type="submit" id="submitBtn">🔍 Dự đoán</button>
-        </form>
+<div class="main">
 
-        <div class="result" id="result"></div>
+  <!-- Cột trái: Form nhập liệu -->
+  <div class="card">
+    <div class="card-header">
+      <div class="dot"></div>
+      <h2>Nhập đặc trưng tế bào</h2>
     </div>
+    <div class="card-body">
+      <div class="warning">
+        <div>
+          <strong>Cảnh báo:</strong> Đây là demo giáo dục. Kết quả <strong>KHÔNG</strong> thay thế chẩn đoán y khoa.
+        </div>
+      </div>
 
-    <script>
-        const API_URL = window.location.origin;
-        const SAMPLE = {
-            "mean radius": 17.99, "mean texture": 10.38, "mean perimeter": 122.8,
-            "mean area": 1001.0, "mean smoothness": 0.1184, "mean compactness": 0.2776,
-            "mean concavity": 0.3001, "mean concave points": 0.1471, "mean symmetry": 0.2419,
-            "mean fractal dimension": 0.07871, "radius error": 1.095, "texture error": 0.9053,
-            "perimeter error": 8.589, "area error": 153.4, "smoothness error": 0.006399,
-            "compactness error": 0.04904, "concavity error": 0.05373, "concave points error": 0.01587,
-            "symmetry error": 0.03003, "fractal dimension error": 0.006193, "worst radius": 25.38,
-            "worst texture": 17.33, "worst perimeter": 184.6, "worst area": 2019.0,
-            "worst smoothness": 0.1622, "worst compactness": 0.6656, "worst concavity": 0.7119,
-            "worst concave points": 0.2654, "worst symmetry": 0.4601, "worst fractal dimension": 0.1189
-        };
+      <form id="predictForm">
+        <div id="formGroups"></div>
+        <button type="submit" class="btn-predict" id="submitBtn">
+          <span id="btnContent">🔍 Dự đoán ngay</span>
+        </button>
+      </form>
+    </div>
+  </div>
 
-        const grid = document.getElementById("featuresGrid");
-        Object.entries(SAMPLE).forEach(([name, value]) => {
-            const div = document.createElement("div");
-            div.innerHTML = `<label>${name}</label><input type="number" step="any" name="${name}" value="${value}" required>`;
-            grid.appendChild(div);
-        });
+  <!-- Cột phải: Kết quả -->
+  <div class="result-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="dot"></div>
+        <h2>Kết quả dự đoán</h2>
+      </div>
+      <div class="card-body">
+        <div class="result-empty" id="resultEmpty">
+          <div class="icon">📊</div>
+          <p>Nhập đặc trưng và bấm <strong>Dự đoán</strong><br>để xem kết quả</p>
+        </div>
+        <div id="resultContainer"></div>
+      </div>
+    </div>
+  </div>
 
-        document.getElementById("predictForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById("submitBtn");
-            const resultDiv = document.getElementById("result");
-            btn.disabled = true;
-            btn.textContent = "⏳ Đang dự đoán...";
-            resultDiv.classList.remove("show", "malignant", "benign");
+</div>
 
-            const formData = new FormData(e.target);
-            const features = {};
-            formData.forEach((v, k) => features[k] = parseFloat(v));
+<div class="footer">
+  ⚡ Powered by FastAPI + scikit-learn · Deploy on <a href="https://render.com" target="_blank">Render</a>
+</div>
 
-            try {
-                const res = await fetch(`${API_URL}/predict`, {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({features})
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(JSON.stringify(data.detail));
+<script>
+const API = window.location.origin;
 
-                const isMalignant = data.predicted_class === 0;
-                const prob = isMalignant ? data.probability_malignant : data.probability_benign;
+const SAMPLE = {
+  "mean radius":17.99,"mean texture":10.38,"mean perimeter":122.8,"mean area":1001.0,
+  "mean smoothness":0.1184,"mean compactness":0.2776,"mean concavity":0.3001,
+  "mean concave points":0.1471,"mean symmetry":0.2419,"mean fractal dimension":0.07871,
+  "radius error":1.095,"texture error":0.9053,"perimeter error":8.589,"area error":153.4,
+  "smoothness error":0.006399,"compactness error":0.04904,"concavity error":0.05373,
+  "concave points error":0.01587,"symmetry error":0.03003,"fractal dimension error":0.006193,
+  "worst radius":25.38,"worst texture":17.33,"worst perimeter":184.6,"worst area":2019.0,
+  "worst smoothness":0.1622,"worst compactness":0.6656,"worst concavity":0.7119,
+  "worst concave points":0.2654,"worst symmetry":0.4601,"worst fractal dimension":0.1189
+};
 
-                resultDiv.className = `result show ${isMalignant ? "malignant" : "benign"}`;
-                resultDiv.innerHTML = `
-                    <h2>${isMalignant ? "⚠️ Malignant (Ác tính)" : "✅ Benign (Lành tính)"}</h2>
-                    <p><strong>Xác suất:</strong> ${(prob * 100).toFixed(2)}%</p>
-                    <div class="prob-bar">
-                        <div class="prob-fill" style="width: ${prob * 100}%; background: ${isMalignant ? "#f56565" : "#48bb78"};">
-                            ${(prob * 100).toFixed(1)}%
-                        </div>
-                    </div>
-                    <p style="margin-top: 12px; font-size: 12px; color: #4a5568;">
-                        Malignant: ${(data.probability_malignant * 100).toFixed(2)}% |
-                        Benign: ${(data.probability_benign * 100).toFixed(2)}% |
-                        Model: ${data.model_version}
-                    </p>
-                    <p style="margin-top: 8px; font-size: 11px; font-style: italic;">${data.warning}</p>
-                `;
-            } catch (err) {
-                resultDiv.className = "result show malignant";
-                resultDiv.innerHTML = `<h2>❌ Lỗi</h2><p>${err.message}</p>`;
-            } finally {
-                btn.disabled = false;
-                btn.textContent = "🔍 Dự đoán";
-            }
-        });
-    </script>
+// Nhóm đặc trưng
+const GROUPS = [
+  {title:"📐 Mean (Giá trị trung bình)", keys:Object.keys(SAMPLE).slice(0,10), cls:"group-mean"},
+  {title:"📏 Error (Sai số chuẩn)", keys:Object.keys(SAMPLE).slice(10,20), cls:"group-error"},
+  {title:"⚠️ Worst (Giá trị xấu nhất)", keys:Object.keys(SAMPLE).slice(20,30), cls:"group-worst"}
+];
+
+// Build form
+const formGroups = document.getElementById("formGroups");
+GROUPS.forEach(g => {
+  const div = document.createElement("div");
+  div.className = "group " + g.cls;
+  let html = `<div class="group-title">${g.title}</div><div class="grid">`;
+  g.keys.forEach(k => {
+    html += `<div class="field">
+      <label>${k}</label>
+      <input type="number" step="any" name="${k}" value="${SAMPLE[k]}" required>
+    </div>`;
+  });
+  html += `</div>`;
+  div.innerHTML = html;
+  formGroups.appendChild(div);
+});
+
+// Xử lý submit
+document.getElementById("predictForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("submitBtn");
+  const btnContent = document.getElementById("btnContent");
+  const resultEmpty = document.getElementById("resultEmpty");
+  const resultContainer = document.getElementById("resultContainer");
+
+  btn.disabled = true;
+  btnContent.innerHTML = '<div class="spinner"></div> Đang phân tích...';
+
+  // Hiện skeleton loading
+  resultEmpty.style.display = "none";
+  resultContainer.innerHTML = `
+    <div class="skeleton" style="width:60%;height:56px;margin:20px auto"></div>
+    <div class="skeleton" style="width:80%;height:24px;margin:16px auto"></div>
+    <div class="skeleton" style="height:12px;margin:16px 0"></div>
+    <div class="skeleton" style="width:40%;height:20px;margin:16px auto"></div>
+  `;
+
+  const formData = new FormData(e.target);
+  const features = {};
+  formData.forEach((v, k) => features[k] = parseFloat(v));
+
+  try {
+    const res = await fetch(`${API}/predict`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({features})
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(JSON.stringify(data.detail));
+
+    const isMalignant = data.predicted_class === 0;
+    const prob = isMalignant ? data.probability_malignant : data.probability_benign;
+    const probPct = (prob * 100).toFixed(2);
+    const malPct = (data.probability_malignant * 100).toFixed(2);
+    const benPct = (data.probability_benign * 100).toFixed(2);
+
+    resultContainer.innerHTML = `
+      <div class="result-box ${isMalignant ? "malignant" : "benign"}">
+        <div class="result-icon">${isMalignant ? "⚠️" : "✅"}</div>
+        <h3>${isMalignant ? "Malignant" : "Benign"}</h3>
+        <div class="result-label">${isMalignant ? "ÁC TÍNH — Cần kiểm tra chuyên sâu" : "LÀNH TÍNH — Nguy cơ thấp"}</div>
+        <div class="prob-value">${probPct}%</div>
+        <div class="result-label">Độ tin cậy cho lớp ${isMalignant ? "Malignant" : "Benign"}</div>
+        <div class="prob-bar">
+          <div class="prob-fill" style="width:${probPct}%"></div>
+        </div>
+        <div class="meta-info">
+          <div><strong>Xác suất Malignant:</strong> ${malPct}%</div>
+          <div><strong>Xác suất Benign:</strong> ${benPct}%</div>
+          <div><strong>Model:</strong> ${data.model_version}</div>
+        </div>
+        <div class="disclaimer">${data.warning}</div>
+      </div>
+    `;
+  } catch (err) {
+    resultContainer.innerHTML = `
+      <div class="error-box">
+        <h3>❌ Lỗi kết nối</h3>
+        <p style="font-size:13px">${err.message}</p>
+        <p style="font-size:12px;margin-top:8px;color:#718096">Vui lòng thử lại sau vài giây</p>
+      </div>
+    `;
+  } finally {
+    btn.disabled = false;
+    btnContent.innerHTML = "🔍 Dự đoán ngay";
+  }
+});
+</script>
 </body>
-</html>
+</html>'''
+
+# Ghi file
+with open("/content/breast-cancer-svm-api/app/static/index.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print("✅ Đã cập nhật app/static/index.html")
+print(f"📏 Kích thước: {len(html_content):,} bytes")
