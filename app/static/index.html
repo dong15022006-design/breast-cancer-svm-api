@@ -50,8 +50,6 @@ body{
   50%{background-position:100% 50%}
   100%{background-position:0% 50%}
 }
-
-/* Particle effect */
 body::before{
   content:'';
   position:fixed;
@@ -69,7 +67,6 @@ body::before{
   33%{transform:translate(30px,-20px) scale(1.1)}
   66%{transform:translate(-20px,30px) scale(.95)}
 }
-
 .container{position:relative;z-index:1;max-width:1400px;margin:0 auto}
 
 /* Header */
@@ -97,7 +94,6 @@ body::before{
 }
 @keyframes rotateGlow{to{transform:rotate(360deg)}}
 @keyframes slideDown{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:none}}
-
 .hero-icon{
   font-size:64px;
   animation:float 3s ease-in-out infinite;
@@ -105,7 +101,6 @@ body::before{
   position:relative;z-index:1;
 }
 @keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-12px) rotate(5deg)}}
-
 .hero-content{position:relative;z-index:1}
 .hero-content h1{
   font-size:38px;font-weight:900;letter-spacing:-1px;
@@ -120,13 +115,11 @@ body::before{
   50%{background-position:100% 50%}
 }
 .hero-content p{color:var(--text-muted);font-size:15px;font-weight:500}
-
 .hero-actions{
   margin-left:auto;
   display:flex;gap:10px;align-items:center;
   position:relative;z-index:1;
 }
-
 .btn-icon{
   width:44px;height:44px;
   border-radius:50%;
@@ -143,7 +136,26 @@ body::before{
   border-color:var(--primary);
   box-shadow:0 8px 20px rgba(102,126,234,.3);
 }
-
+/* Logout button — THÊM MỚI */
+.btn-logout{
+  background:var(--bg-card);
+  border:2px solid var(--border);
+  color:var(--text);
+  padding:10px 18px;
+  border-radius:99px;
+  font-size:13px;font-weight:700;
+  font-family:inherit;
+  cursor:pointer;
+  transition:all .3s;
+  display:flex;align-items:center;gap:6px;
+}
+.btn-logout:hover{
+  border-color:var(--danger);
+  color:var(--danger);
+  background:rgba(245,101,101,.08);
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(245,101,101,.2);
+}
 .badge{
   background:linear-gradient(135deg,#667eea,#764ba2);
   color:#fff;padding:10px 20px;border-radius:99px;
@@ -183,7 +195,6 @@ body::before{
   box-shadow:0 16px 40px rgba(0,0,0,.15);
 }
 @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
-
 .stat-label{
   font-size:11px;font-weight:700;
   text-transform:uppercase;letter-spacing:1px;
@@ -214,7 +225,6 @@ body::before{
   border:1px solid rgba(255,255,255,.2);
   transition:all .3s;
 }
-
 .card-header{
   padding:22px 28px;
   background:linear-gradient(135deg,rgba(102,126,234,.08),rgba(118,75,162,.08));
@@ -263,10 +273,8 @@ body::before{
 .group-mean .group-title{background:linear-gradient(135deg,#ebf4ff,#bee3f8);color:#2b6cb0}
 .group-error .group-title{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e}
 .group-worst .group-title{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#991b1b}
-
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:640px){.grid{grid-template-columns:1fr}}
-
 .field{position:relative}
 .field label{
   display:block;font-size:12px;font-weight:700;
@@ -343,7 +351,6 @@ body::before{
   opacity:.5;
 }
 .result-empty p{font-size:14px;line-height:1.6}
-
 .result-box{
   border-radius:20px;padding:32px;
   animation:popIn .5s cubic-bezier(.68,-.55,.27,1.55);
@@ -358,7 +365,6 @@ body::before{
   pointer-events:none;
 }
 @keyframes popIn{0%{opacity:0;transform:scale(.85)}100%{opacity:1;transform:scale(1)}}
-
 .result-box.malignant{
   background:linear-gradient(135deg,rgba(245,101,101,.15),rgba(197,48,48,.1));
   border:2px solid var(--danger);
@@ -367,7 +373,6 @@ body::before{
   background:linear-gradient(135deg,rgba(72,187,120,.15),rgba(47,133,90,.1));
   border:2px solid var(--success);
 }
-
 .result-icon{
   font-size:72px;text-align:center;margin-bottom:16px;
   animation:bounceIn .6s cubic-bezier(.68,-.55,.27,1.55);
@@ -384,13 +389,11 @@ body::before{
 }
 .result-box.malignant h3{color:var(--danger-dark)}
 .result-box.benign h3{color:var(--success-dark)}
-
 .result-label{
   text-align:center;color:var(--text-muted);font-size:13px;
   margin-bottom:16px;font-weight:600;letter-spacing:.5px;
   position:relative;z-index:1;
 }
-
 .prob-value{
   font-size:56px;font-weight:900;text-align:center;
   margin-bottom:8px;position:relative;z-index:1;
@@ -401,7 +404,6 @@ body::before{
 @keyframes countUp{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
 .result-box.malignant .prob-value{color:var(--danger-dark)}
 .result-box.benign .prob-value{color:var(--success-dark)}
-
 .prob-bar{
   height:16px;background:rgba(255,255,255,.5);
   border-radius:99px;overflow:hidden;margin:20px 0;
@@ -423,7 +425,6 @@ body::before{
 .result-box.benign .prob-fill{background:linear-gradient(90deg,#68d391,#2f855a)}
 @keyframes fillBar{from{width:0}}
 @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-
 .meta-info{
   background:rgba(255,255,255,.5);
   backdrop-filter:blur(10px);
@@ -433,14 +434,12 @@ body::before{
   border:1px solid rgba(255,255,255,.3);
 }
 .meta-info strong{color:var(--text);font-weight:700}
-
 .disclaimer{
   margin-top:16px;padding-top:16px;
   border-top:1px dashed var(--border);
   font-size:11px;font-style:italic;color:var(--text-muted);
   text-align:center;position:relative;z-index:1;
 }
-
 /* Footer */
 .footer{
   max-width:1400px;margin:40px auto 0;
@@ -451,7 +450,6 @@ body::before{
 }
 .footer a{color:#fff;text-decoration:none;font-weight:700;border-bottom:2px solid rgba(255,255,255,.3)}
 .footer a:hover{border-bottom-color:#fff}
-
 /* Error box */
 .error-box{
   background:linear-gradient(135deg,rgba(245,101,101,.15),rgba(197,48,48,.1));
@@ -461,7 +459,6 @@ body::before{
 }
 .error-box h3{margin-bottom:8px;font-size:20px;font-weight:800}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
-
 /* Skeleton */
 .skeleton{
   background:linear-gradient(90deg,rgba(240,240,240,.5) 25%,rgba(224,224,224,.8) 50%,rgba(240,240,240,.5) 75%);
@@ -470,8 +467,7 @@ body::before{
   border-radius:8px;height:20px;margin:8px 0;
 }
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-
-/* Confetti for malignant */
+/* Confetti */
 .confetti{
   position:fixed;top:-10px;
   width:10px;height:10px;
@@ -483,7 +479,6 @@ body::before{
   0%{transform:translateY(0) rotate(0deg);opacity:1}
   100%{transform:translateY(100vh) rotate(720deg);opacity:0}
 }
-
 /* Tooltip */
 .field-tip{
   position:absolute;top:100%;left:0;
@@ -496,7 +491,6 @@ body::before{
   margin-top:4px;
 }
 .field:hover .field-tip{opacity:1}
-
 /* Scrollbar */
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-track{background:rgba(255,255,255,.1)}
@@ -519,6 +513,9 @@ body::before{
       <p>Hệ thống hỗ trợ chẩn đoán AI · 30 đặc trưng tế bào · SVM RBF</p>
     </div>
     <div class="hero-actions">
+      <button class="btn-logout" onclick="logout()" title="Đăng xuất">
+        🚪 Đăng xuất
+      </button>
       <button class="btn-icon" id="themeToggle" title="Chuyển sáng/tối">🌙</button>
       <div class="badge">✨ v1.0.0</div>
     </div>
@@ -546,8 +543,6 @@ body::before{
 
   <!-- Main Grid -->
   <div class="main">
-
-    <!-- Cột trái: Form -->
     <div class="card">
       <div class="card-header">
         <div class="dot"></div>
@@ -559,7 +554,6 @@ body::before{
             <strong>Cảnh báo:</strong> Demo giáo dục. Kết quả <strong>KHÔNG</strong> thay thế chẩn đoán y khoa.
           </div>
         </div>
-
         <form id="predictForm">
           <div id="formGroups"></div>
           <div style="display:flex;gap:12px;margin-top:20px">
@@ -573,8 +567,6 @@ body::before{
         </form>
       </div>
     </div>
-
-    <!-- Cột phải: Kết quả -->
     <div class="result-panel">
       <div class="card">
         <div class="card-header">
@@ -590,7 +582,6 @@ body::before{
         </div>
       </div>
     </div>
-
   </div>
 
   <div class="footer">
@@ -633,7 +624,6 @@ const GROUPS = [
   {title:"⚠️ Worst (Giá trị xấu nhất)", keys:Object.keys(SAMPLE).slice(20,30), cls:"group-worst"}
 ];
 
-// Build form
 const formGroups = document.getElementById("formGroups");
 GROUPS.forEach(g => {
   const div = document.createElement("div");
@@ -661,7 +651,7 @@ themeToggle.addEventListener("click", () => {
   themeToggle.textContent = next === "dark" ? "☀️" : "🌙";
 });
 
-// Reset button
+// Reset
 document.getElementById("resetBtn").addEventListener("click", () => {
   document.querySelectorAll("#predictForm input").forEach(input => {
     if (SAMPLE[input.name] !== undefined) {
@@ -670,7 +660,15 @@ document.getElementById("resetBtn").addEventListener("click", () => {
   });
 });
 
-// Confetti effect
+// ⭐ LOGOUT — THÊM MỚI
+async function logout() {
+  try {
+    await fetch("/logout", {method: "POST", credentials: "include"});
+  } catch (e) {}
+  window.location.href = "/";
+}
+
+// Confetti
 function createConfetti() {
   const colors = ['#f56565','#ed8936','#ecc94b','#48bb78','#4299e1','#9f7aea','#ed64a6'];
   for (let i = 0; i < 50; i++) {
@@ -719,8 +717,10 @@ document.getElementById("predictForm").addEventListener("submit", async (e) => {
       body: JSON.stringify({features})
     });
 
+    // ⭐ Nếu 401 → token hết hạn → về login
     if (res.status === 401) {
-      throw new Error("Chưa xác thực. Vui lòng refresh và đăng nhập lại.");
+      window.location.href = "/";
+      return;
     }
 
     const data = await res.json();
@@ -751,7 +751,6 @@ document.getElementById("predictForm").addEventListener("submit", async (e) => {
       </div>
     `;
 
-    // Confetti nếu malignant
     if (isMalignant) createConfetti();
 
   } catch (err) {
