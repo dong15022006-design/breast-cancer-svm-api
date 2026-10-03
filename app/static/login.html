@@ -151,6 +151,10 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || "Đăng nhập thất bại");
 
+    // ⭐ LƯU sessionStorage — quan trọng!
+    sessionStorage.setItem("logged_in", "1");
+    sessionStorage.setItem("username", username);
+
     window.location.href = "/";
   } catch (err) {
     errorBox.textContent = "❌ " + err.message;
