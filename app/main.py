@@ -24,7 +24,9 @@ USERNAME = "dong2006"
 PASSWORD = "dong123"
 SECRET_KEY = "doi-secret-key-nay-di-abc123xyz-2026"
 ALGORITHM = "HS256"
-TOKEN_EXPIRE_HOURS = 8
+
+# ⏰ THỜI GIAN SESSION (đơn vị: GIÂY)
+TOKEN_EXPIRE_SECONDS = 30   # ← ĐỔI SỐ NÀY (30 giây)
 
 app = FastAPI(
     title="Breast Cancer SVM API",
@@ -38,7 +40,7 @@ app = FastAPI(
 def create_token(username: str) -> str:
     payload = {
         "sub": username,
-        "exp": datetime.utcnow() + timedelta(hours=TOKEN_EXPIRE_HOURS),
+        "exp": datetime.utcnow() + timedelta(seconds=TOKEN_EXPIRE_SECONDS),
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -106,16 +108,21 @@ def login(data: LoginRequest, response: Response):
         key="access_token",
         value=token,
         httponly=True,
-        # Bỏ max_age → session cookie (đóng browser là mất)
-        samesite="lax",
+        # ⚠️ KHÔNG có max_age → session cookie
+        samesite="strict",     # Chặt hơn lax
         secure=True,
+        path="/",
     )
-    return {"ok": True, "user": USERNAME}
+    return {
+        "ok": True,
+        "user": USERNAME,
+        "expires_in_seconds": TOKEN_EXPIRE_SECONDS,
+    }
 
 
 @app.post("/logout")
 def logout(response: Response):
-    response.delete_cookie("access_token")
+    response.delete_cookie("access_token", path="/")
     return {"ok": True}
 
 
@@ -158,17 +165,17 @@ def predict(payload: PredictionRequest, user: str = Depends(require_auth)):
     )
 
 
-# ============ PAGE — URL "/" hiện login hoặc index tùy trạng thái ============
+# ============ PAGE ============
 
 @app.get("/")
 def index_page(access_token: str = Cookie(None)):
     """Chưa login → hiện login.html. Đã login → hiện index.html."""
     user = verify_token(access_token) if access_token else None
     if not user:
-        return FileResponse(STATIC_DIR / "login.html")   # ← HIỆN LOGIN LUÔN
+        return FileResponse(STATIC_DIR / "login.html")
     return FileResponse(STATIC_DIR / "index.html")
 
 
-# ============ STATIC FILES (đứng cuối) ============
+# ============ STATIC FILES ============
 
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=False), name="static")
