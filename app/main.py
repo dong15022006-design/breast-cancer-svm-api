@@ -24,7 +24,7 @@ USERNAME = "dong2006"
 PASSWORD = "dong123"
 SECRET_KEY = "doi-secret-key-nay-di-abc123xyz-2026"
 ALGORITHM = "HS256"
-TOKEN_EXPIRE_HOURS = 8
+TOKEN_EXPIRE_HOURS = 8   # vẫn dùng để set exp cho JWT (8h nếu không đóng browser)
 
 app = FastAPI(
     title="Breast Cancer SVM API",
@@ -100,7 +100,7 @@ def build_vector(payload: PredictionRequest) -> np.ndarray:
 
 @app.post("/login")
 def login(data: LoginRequest, response: Response):
-    """Đăng nhập, set cookie HttpOnly."""
+    """Đăng nhập, set SESSION cookie (hết khi đóng browser)."""
     if data.username != USERNAME or data.password != PASSWORD:
         raise HTTPException(401, "Sai username hoặc password")
     token = create_token(USERNAME)
@@ -108,9 +108,10 @@ def login(data: LoginRequest, response: Response):
         key="access_token",
         value=token,
         httponly=True,
-        max_age=TOKEN_EXPIRE_HOURS * 3600,
+        # ⚠️ ĐÃ BỎ max_age → SESSION COOKIE
+        # ⚠️ ĐÃ BỎ expires → cookie hết khi đóng browser
         samesite="lax",
-        secure=True,   # BẮT BUỘC HTTPS
+        secure=True,
     )
     return {"ok": True, "user": USERNAME}
 
