@@ -5,7 +5,7 @@ import numpy as np
 import secrets
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -31,7 +31,7 @@ def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Sai username hoặc password",
-            headers={"WWW-Authenticate": "Basic"},
+            headers={"WWW-Authenticate": 'Basic realm="Breast Cancer SVM"'},
         )
     return credentials.username
 
@@ -70,7 +70,8 @@ def build_vector(payload: PredictionRequest) -> np.ndarray:
     return np.array(values, dtype=float).reshape(1, -1)
 
 
-# ⚠️ MỌI request đều cần Basic Auth — KHÔNG dùng cookie
+# ============ ROUTES CẦN AUTH ============
+
 @app.get("/")
 def index_page(user: str = Depends(verify_credentials)):
     return FileResponse(STATIC_DIR / "index.html")
@@ -101,11 +102,18 @@ def get_metadata(user: str = Depends(verify_credentials)):
     return metadata
 
 
+# ============ ROUTES KHÔNG CẦN AUTH ============
+
 @app.get("/health")
 def health():
-    # KHÔNG cần auth — cho Render ping
     return {"status": "ok", "model_loaded": model is not None}
 
 
-# ⚠️ MOUNT CUỐI CÙNG — với auth
+@app.get("/api")
+def api_root():
+    return {"service": "Breast Cancer SVM API", "warning": metadata["warning"]}
+
+
+# ============ STATIC ============
+
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR), html=False), name="static")
