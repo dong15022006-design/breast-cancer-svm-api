@@ -5,7 +5,7 @@ import numpy as np
 import hashlib
 from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException, Depends, Response, Cookie
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from jose import JWTError, jwt
 from pydantic import BaseModel, Field
@@ -24,7 +24,7 @@ USERNAME = "dong2006"
 PASSWORD = "dong123"
 SECRET_KEY = "doi-secret-key-nay-di-abc123xyz-2026"
 ALGORITHM = "HS256"
-TOKEN_EXPIRE_HOURS = 8   # vẫn dùng để set exp cho JWT (8h nếu không đóng browser)
+TOKEN_EXPIRE_HOURS = 8
 
 app = FastAPI(
     title="Breast Cancer SVM API",
@@ -52,7 +52,6 @@ def verify_token(token: str):
 
 
 def require_auth(access_token: str = Cookie(None)):
-    """Dependency cho API — yêu cầu cookie token hợp lệ."""
     if not access_token:
         raise HTTPException(401, "Chưa đăng nhập")
     user = verify_token(access_token)
@@ -100,7 +99,6 @@ def build_vector(payload: PredictionRequest) -> np.ndarray:
 
 @app.post("/login")
 def login(data: LoginRequest, response: Response):
-    """Đăng nhập, set SESSION cookie (hết khi đóng browser)."""
     if data.username != USERNAME or data.password != PASSWORD:
         raise HTTPException(401, "Sai username hoặc password")
     token = create_token(USERNAME)
@@ -108,8 +106,7 @@ def login(data: LoginRequest, response: Response):
         key="access_token",
         value=token,
         httponly=True,
-        # ⚠️ ĐÃ BỎ max_age → SESSION COOKIE
-        # ⚠️ ĐÃ BỎ expires → cookie hết khi đóng browser
+        # Bỏ max_age → session cookie (đóng browser là mất)
         samesite="lax",
         secure=True,
     )
@@ -131,22 +128,12 @@ def me(user: str = Depends(require_auth)):
 
 @app.get("/api")
 def api_root(user: str = Depends(require_auth)):
-    return {
-        "service": "Breast Cancer SVM API",
-        "user": user,
-        "docs": "/docs",
-        "warning": metadata["warning"],
-    }
+    return {"service": "Breast Cancer SVM API", "user": user, "warning": metadata["warning"]}
 
 
 @app.get("/health")
 def health():
-    # Không cần auth — cho Render ping
-    return {
-        "status": "ok",
-        "model_loaded": model is not None,
-        "model_version": metadata["model_version"],
-    }
+    return {"status": "ok", "model_loaded": model is not None, "model_version": metadata["model_version"]}
 
 
 @app.get("/metadata")
@@ -171,23 +158,17 @@ def predict(payload: PredictionRequest, user: str = Depends(require_auth)):
     )
 
 
-# ============ PAGE ENDPOINTS (phải đứng TRƯỚC mount) ============
-
-@app.get("/login")
-def login_page():
-    """Trả file login.html."""
-    return FileResponse(STATIC_DIR / "login.html")
-
+# ============ PAGE — URL "/" hiện login hoặc index tùy trạng thái ============
 
 @app.get("/")
 def index_page(access_token: str = Cookie(None)):
-    """Kiểm tra cookie, chưa login → redirect /login."""
+    """Chưa login → hiện login.html. Đã login → hiện index.html."""
     user = verify_token(access_token) if access_token else None
     if not user:
-        return RedirectResponse(url="/login", status_code=302)
+        return FileResponse(STATIC_DIR / "login.html")   # ← HIỆN LOGIN LUÔN
     return FileResponse(STATIC_DIR / "index.html")
 
 
-# ============ STATIC FILES (phải ĐỨNG CUỐI) ============
+# ============ STATIC FILES (đứng cuối) ============
 
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=False), name="static")
