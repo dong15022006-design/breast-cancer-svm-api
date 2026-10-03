@@ -665,6 +665,7 @@ async function logout() {
   try {
     await fetch("/logout", {method: "POST", credentials: "include"});
   } catch (e) {}
+  sessionStorage.clear();     // ⭐ THÊM DÒNG NÀY
   window.location.href = "/";
 }
 
