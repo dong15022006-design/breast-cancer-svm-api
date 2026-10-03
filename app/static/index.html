@@ -55,29 +55,6 @@ body{
   box-shadow:0 4px 14px rgba(102,126,234,.4);
 }
 
-/* Nút đăng xuất */
-.btn-logout{
-  background:#fff;
-  border:2px solid #e2e8f0;
-  color:#4a5568;
-  padding:8px 16px;
-  border-radius:99px;
-  font-size:13px;
-  font-weight:600;
-  font-family:inherit;
-  cursor:pointer;
-  transition:all .2s;
-  margin-right:8px;
-  display:flex;
-  align-items:center;
-  gap:6px;
-}
-.btn-logout:hover{
-  border-color:#f56565;
-  color:#f56565;
-  background:#fff5f5;
-}
-
 /* Main grid */
 .main{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:start}
 @media(max-width:1024px){.main{grid-template-columns:1fr}}
@@ -266,12 +243,7 @@ body{
 </head>
 <body>
 
-<!-- ⭐ KIỂM TRA SESSIONSTORAGE — nếu không có → về login -->
-<script>
-if (!sessionStorage.getItem("logged_in")) {
-  window.location.href = "/login";
-}
-</script>
+<!-- KHÔNG có check sessionStorage — Basic Auth xử lý ở server -->
 
 <div class="hero">
   <div class="hero-icon">🩺</div>
@@ -279,9 +251,6 @@ if (!sessionStorage.getItem("logged_in")) {
     <h1>Breast Cancer SVM</h1>
     <p>Hệ thống hỗ trợ chẩn đoán dựa trên 30 đặc trưng tế bào</p>
   </div>
-  <button class="btn-logout" onclick="logout()">
-    🚪 Đăng xuất
-  </button>
   <div class="badge">v1.0.0 · SVM RBF</div>
 </div>
 
@@ -371,16 +340,6 @@ GROUPS.forEach(g => {
   formGroups.appendChild(div);
 });
 
-// Hàm logout
-async function logout() {
-  try {
-    await fetch("/logout", {method: "POST", credentials: "include"});
-  } catch (e) {}
-  sessionStorage.removeItem("logged_in");
-  sessionStorage.removeItem("username");
-  window.location.href = "/login";
-}
-
 // Xử lý submit
 document.getElementById("predictForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -409,16 +368,13 @@ document.getElementById("predictForm").addEventListener("submit", async (e) => {
     const res = await fetch(`${API}/predict`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      credentials: "include",     // ⭐ Gửi cookie
+      credentials: "include",   // ⭐ Quan trọng cho Basic Auth
       body: JSON.stringify({features})
     });
 
-    // ⭐ Nếu 401 → token hết hạn → về login
+    // Nếu 401 → Basic Auth popup đã hiện → user cần nhập lại
     if (res.status === 401) {
-      sessionStorage.removeItem("logged_in");
-      sessionStorage.removeItem("username");
-      window.location.href = "/login";
-      return;
+      throw new Error("Chưa xác thực. Vui lòng refresh trang và đăng nhập.");
     }
 
     const data = await res.json();
