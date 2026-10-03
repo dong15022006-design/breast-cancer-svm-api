@@ -109,7 +109,7 @@ def login(data: LoginRequest, response: Response):
         value=token,
         httponly=True,
         # ⚠️ KHÔNG có max_age → session cookie
-        samesite="strict",     # Chặt hơn lax
+        samesite="lax",     # Chặt hơn lax
         secure=True,
         path="/",
     )
@@ -122,7 +122,12 @@ def login(data: LoginRequest, response: Response):
 
 @app.post("/logout")
 def logout(response: Response):
-    response.delete_cookie("access_token", path="/")
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+        samesite="lax",   # ← THÊM
+        secure=True,      # ← THÊM
+    )
     return {"ok": True}
 
 
