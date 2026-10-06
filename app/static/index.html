@@ -663,10 +663,19 @@ document.getElementById("resetBtn").addEventListener("click", () => {
 // ⭐ LOGOUT — THÊM MỚI
 async function logout() {
   try {
-    await fetch("/logout", {method: "POST", credentials: "include"});
-  } catch (e) {}
-  sessionStorage.clear();     // ⭐ THÊM DÒNG NÀY
-  window.location.href = "/";
+    // Gọi API xóa cookie trên server
+    await fetch("/logout", { 
+      method: "POST", 
+      credentials: "include" 
+    });
+  } catch (err) {
+    console.error("Lỗi khi gọi API logout:", err);
+  } finally {
+    // Dù thành công hay lỗi mạng, bắt buộc dọn dẹp bộ nhớ đệm và đá về trang login
+    sessionStorage.clear();
+    localStorage.clear();
+    window.location.href = "/";
+  }
 }
 
 // Confetti
