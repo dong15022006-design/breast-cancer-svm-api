@@ -560,7 +560,7 @@ body::before{
             <button type="button" class="btn-icon" id="resetBtn" title="Reset về mẫu" style="width:auto;padding:0 20px;border-radius:14px;height:56px">
               🔄 Reset
             </button>
-            <button type="submit" class="btn-predict" id="submitBtn" style="flex:1">
+            <button type="button" class="btn-predict" id="submitBtn" style="flex:1">
               <span id="btnContent">🔍 Dự đoán ngay</span>
             </button>
           </div>
@@ -687,17 +687,15 @@ function createConfetti() {
   }
 }
 
-// Submit
-document.getElementById("predictForm").addEventListener("submit", async (e) => {
-  e.preventDefault(); // CHẶN reload trang ngay lập tức
-  
+// Thay vì lắng nghe sự kiện submit của form, ta bắt sự kiện click trực tiếp vào nút Dự đoán
+document.getElementById("submitBtn").addEventListener("click", async () => {
   const btn = document.getElementById("submitBtn");
   const btnContent = document.getElementById("btnContent");
   const resultEmpty = document.getElementById("resultEmpty");
   const resultContainer = document.getElementById("resultContainer");
 
   btn.disabled = true;
-  btnContent.innerHTML = '<div class="spinner"></div> Đang phân tích...';
+  btnContent.innerHTML = '<div class="spinner"></div> Đang phân tích (có thể mất vài giây để khởi động server)...';
 
   resultEmpty.style.display = "none";
   resultContainer.innerHTML = `
@@ -707,32 +705,40 @@ document.getElementById("predictForm").addEventListener("submit", async (e) => {
     <div class="skeleton" style="width:40%;height:20px;margin:16px auto"></div>
   `;
 
-  // Thu thập dữ liệu từ các ô input (Xử lý thay thế dấu phẩy , thành dấu chấm . nếu người dùng gõ tiếng Việt)
-  const formData = new FormData(e.target);
+  // Thu thập dữ liệu từ tất cả input trong form
+  const inputs = document.querySelectorAll("#predictForm input");
   const features = {};
-  formData.forEach((v, k) => {
-    // Đề phòng trường hợp nhập dấu phẩy (ví dụ: 17,99 thành 17.99)
-    const cleanVal = String(v).replace(',', '.');
-    features[k] = parseFloat(cleanVal);
+  inputs.forEach(input => {
+    const val = input.value.replace(',', '.'); // Đề phòng lỗi dấu phẩy tiếng Việt
+    features[input.name] = parseFloat(val) || 0;
   });
+
+  // Tạo Controller để tăng thời gian chờ request lên 30 giây (phòng trường hợp server Render bị ngủ đông)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
 
   try {
     const res = await fetch(`${API}/predict`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       credentials: "include",
-      body: JSON.stringify({features})
+      body: JSON.stringify({features}),
+      signal: controller.signal
     });
 
-    // Nếu lỗi 401, thông báo nhẹ nhàng thay vì văng trang đột ngột giúp dễ debug
+    clearTimeout(timeoutId);
+
+    // Nếu gặp lỗi 401, hiển thị thông báo thay vì tự động đá về trang chủ
     if (res.status === 401) {
-      alert("Phiên đăng nhập hết hạn hoặc chưa xác thực. Vui lòng đăng nhập lại!");
+      alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
       window.location.href = "/";
       return;
     }
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail ? JSON.stringify(data.detail) : "Lỗi server");
+    if (!res.ok) {
+      throw new Error(data.detail ? JSON.stringify(data.detail) : `Lỗi server (${res.status})`);
+    }
 
     const isMalignant = data.predicted_class === 0;
     const prob = isMalignant ? data.probability_malignant : data.probability_benign;
@@ -762,11 +768,16 @@ document.getElementById("predictForm").addEventListener("submit", async (e) => {
     if (isMalignant) createConfetti();
 
   } catch (err) {
+    let errorMsg = err.message;
+    if (err.name === 'AbortError') {
+      errorMsg = "Server phản hồi quá chậm (Timeout sau 30 giây). Nếu bạn dùng Render miễn phí, hãy đợi server khởi động lại rồi bấm thử lần nữa.";
+    }
+    
     resultContainer.innerHTML = `
       <div class="error-box">
         <h3>❌ Lỗi kết nối</h3>
-        <p style="font-size:13px">${err.message}</p>
-        <p style="font-size:12px;margin-top:8px;opacity:.7">Vui lòng kiểm tra lại kết nối Backend FastAPI</p>
+        <p style="font-size:13px">${errorMsg}</p>
+        <p style="font-size:12px;margin-top:8px;opacity:.7">Hãy kiểm tra lại terminal chạy FastAPI của bạn</p>
       </div>
     `;
   } finally {
