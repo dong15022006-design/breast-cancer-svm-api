@@ -108,9 +108,8 @@ def login(data: LoginRequest, response: Response):
         key="access_token",
         value=token,
         httponly=True,
-        # ⚠️ KHÔNG có max_age → session cookie
-        samesite="lax",     # Chặt hơn lax
-        secure=True,
+        samesite="lax",
+        secure=False,      # <-- Đổi từ True thành False để chạy được trên http://localhost
         path="/",
     )
     return {
@@ -125,8 +124,8 @@ def logout(response: Response):
     response.delete_cookie(
         key="access_token",
         path="/",
-        samesite="lax",   # ← THÊM
-        secure=True,      # ← THÊM
+        samesite="lax",
+        secure=False,      # <-- Đổi thành False ở đây luôn
     )
     return {"ok": True}
 
