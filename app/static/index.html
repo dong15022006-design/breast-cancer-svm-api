@@ -689,7 +689,8 @@ function createConfetti() {
 
 // Submit
 document.getElementById("predictForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
+  e.preventDefault(); // CHẶN reload trang ngay lập tức
+  
   const btn = document.getElementById("submitBtn");
   const btnContent = document.getElementById("btnContent");
   const resultEmpty = document.getElementById("resultEmpty");
@@ -706,9 +707,14 @@ document.getElementById("predictForm").addEventListener("submit", async (e) => {
     <div class="skeleton" style="width:40%;height:20px;margin:16px auto"></div>
   `;
 
+  // Thu thập dữ liệu từ các ô input (Xử lý thay thế dấu phẩy , thành dấu chấm . nếu người dùng gõ tiếng Việt)
   const formData = new FormData(e.target);
   const features = {};
-  formData.forEach((v, k) => features[k] = parseFloat(v));
+  formData.forEach((v, k) => {
+    // Đề phòng trường hợp nhập dấu phẩy (ví dụ: 17,99 thành 17.99)
+    const cleanVal = String(v).replace(',', '.');
+    features[k] = parseFloat(cleanVal);
+  });
 
   try {
     const res = await fetch(`${API}/predict`, {
@@ -718,14 +724,15 @@ document.getElementById("predictForm").addEventListener("submit", async (e) => {
       body: JSON.stringify({features})
     });
 
-    // ⭐ Nếu 401 → token hết hạn → về login
+    // Nếu lỗi 401, thông báo nhẹ nhàng thay vì văng trang đột ngột giúp dễ debug
     if (res.status === 401) {
+      alert("Phiên đăng nhập hết hạn hoặc chưa xác thực. Vui lòng đăng nhập lại!");
       window.location.href = "/";
       return;
     }
 
     const data = await res.json();
-    if (!res.ok) throw new Error(JSON.stringify(data.detail));
+    if (!res.ok) throw new Error(data.detail ? JSON.stringify(data.detail) : "Lỗi server");
 
     const isMalignant = data.predicted_class === 0;
     const prob = isMalignant ? data.probability_malignant : data.probability_benign;
@@ -746,9 +753,9 @@ document.getElementById("predictForm").addEventListener("submit", async (e) => {
         <div class="meta-info">
           <div><strong>Xác suất Malignant:</strong> ${malPct}%</div>
           <div><strong>Xác suất Benign:</strong> ${benPct}%</div>
-          <div><strong>Model:</strong> ${data.model_version}</div>
+          <div><strong>Model:</strong> ${data.model_version || 'SVM RBF'}</div>
         </div>
-        <div class="disclaimer">${data.warning}</div>
+        <div class="disclaimer">${data.warning || ''}</div>
       </div>
     `;
 
@@ -759,7 +766,7 @@ document.getElementById("predictForm").addEventListener("submit", async (e) => {
       <div class="error-box">
         <h3>❌ Lỗi kết nối</h3>
         <p style="font-size:13px">${err.message}</p>
-        <p style="font-size:12px;margin-top:8px;opacity:.7">Vui lòng thử lại sau vài giây</p>
+        <p style="font-size:12px;margin-top:8px;opacity:.7">Vui lòng kiểm tra lại kết nối Backend FastAPI</p>
       </div>
     `;
   } finally {
