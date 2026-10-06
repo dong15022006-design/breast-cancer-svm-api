@@ -513,7 +513,7 @@ body::before{
       <p>Hệ thống hỗ trợ chẩn đoán AI · 30 đặc trưng tế bào · SVM RBF</p>
     </div>
     <div class="hero-actions">
-      <button class="btn-logout" onclick="logout()" title="Đăng xuất">
+      <button class="btn-logout" onclick="handleUserLogout()" title="Đăng xuất">
         🚪 Đăng xuất
       </button>
       <button class="btn-icon" id="themeToggle" title="Chuyển sáng/tối">🌙</button>
@@ -661,20 +661,19 @@ document.getElementById("resetBtn").addEventListener("click", () => {
 });
 
 // ⭐ LOGOUT — THÊM MỚI
-async function logout() {
+async function handleUserLogout() {
   try {
-    // Gọi API xóa cookie trên server
     await fetch("/logout", { 
       method: "POST", 
       credentials: "include" 
     });
   } catch (err) {
-    console.error("Lỗi khi gọi API logout:", err);
+    console.error("Lỗi:", err);
   } finally {
-    // Dù thành công hay lỗi mạng, bắt buộc dọn dẹp bộ nhớ đệm và đá về trang login
     sessionStorage.clear();
     localStorage.clear();
-    window.location.href = "/";
+    // Ép buộc chuyển hướng hoàn toàn về trang gốc kèm theo thời gian ngẫu nhiên để chống cache
+    window.location.replace("/?t=" + new Date().getTime());
   }
 }
 
