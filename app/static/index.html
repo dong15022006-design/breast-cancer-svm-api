@@ -728,13 +728,11 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 
     clearTimeout(timeoutId);
 
-    // Nếu gặp lỗi 401, hiển thị thông báo thay vì tự động đá về trang chủ
-    if (res.status === 401) {
-      alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-      window.location.href = "/";
-      return;
-    }
-
+   if (res.status === 401) {
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "/";
+    return;
+}
     const data = await res.json();
     if (!res.ok) {
       throw new Error(data.detail ? JSON.stringify(data.detail) : `Lỗi server (${res.status})`);
