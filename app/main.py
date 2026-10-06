@@ -109,7 +109,7 @@ def login(data: LoginRequest, response: Response):
         value=token,
         httponly=True,
         samesite="lax",
-        secure=True,      # <-- Đổi từ True thành False để chạy được trên http://localhost
+        secure=False,      # <-- Đổi từ True thành False để chạy được trên http://localhost
         path="/",
     )
     return {
@@ -125,7 +125,7 @@ def logout(response: Response):
         key="access_token",
         path="/",
         samesite="lax",
-        secure=True,      # <-- Đổi thành False ở đây luôn
+        secure=False,      # <-- Đổi thành False ở đây luôn
     )
     return {"ok": True}
 
