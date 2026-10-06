@@ -26,7 +26,7 @@ SECRET_KEY = "doi-secret-key-nay-di-abc123xyz-2026"
 ALGORITHM = "HS256"
 
 # ⏰ THỜI GIAN SESSION (đơn vị: GIÂY)
-TOKEN_EXPIRE_SECONDS = 30   # ← ĐỔI SỐ NÀY (30 giây)
+TOKEN_EXPIRE_SECONDS = 86400
 
 app = FastAPI(
     title="Breast Cancer SVM API",
