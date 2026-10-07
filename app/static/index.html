@@ -3,373 +3,579 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>🩺 Breast Cancer SVM — AI Diagnostic Suite</title>
+<title>🩺 Breast Cancer SVM — AI Diagnostic</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --primary:#6366f1;
-  --primary-dark:#4f46e5;
-  --secondary:#8b5cf6;
-  --accent:#ec4899;
-  --success:#10b981;
-  --success-dark:#059669;
-  --danger:#ef4444;
-  --danger-dark:#dc2626;
-  --warning:#f59e0b;
-  --bg-app:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#311042 100%);
-  --bg-card:rgba(30, 41, 59, 0.85);
-  --text:#f8fafc;
-  --text-muted:#94a3b8;
-  --border:rgba(255, 255, 255, 0.12);
-  --shadow:0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  --primary:#667eea;
+  --primary-dark:#5568d3;
+  --secondary:#764ba2;
+  --accent:#f093fb;
+  --success:#48bb78;
+  --success-dark:#2f855a;
+  --danger:#f56565;
+  --danger-dark:#c53030;
+  --warning:#ed8936;
+  --bg-card:rgba(255,255,255,.98);
+  --text:#1a202c;
+  --text-muted:#718096;
+  --border:#e2e8f0;
+  --shadow:0 20px 60px rgba(0,0,0,.15);
 }
-[data-theme="light"]{
-  --bg-app:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);
-  --bg-card:rgba(255,255,255,.92);
-  --text:#1e293b;
-  --text-muted:#64748b;
-  --border:rgba(0, 0, 0, 0.1);
-  --shadow:0 20px 40px rgba(0,0,0,.15);
+[data-theme="dark"]{
+  --bg-card:rgba(26,32,44,.98);
+  --text:#f7fafc;
+  --text-muted:#a0aec0;
+  --border:#4a5568;
+  --shadow:0 20px 60px rgba(0,0,0,.5);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
   font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-  background:var(--bg-app);
-  background-attachment:fixed;
+  background:linear-gradient(-45deg,#667eea,#764ba2,#f093fb,#667eea);
+  background-size:400% 400%;
+  animation:gradientShift 15s ease infinite;
   min-height:100vh;
   padding:24px;
   color:var(--text);
   -webkit-font-smoothing:antialiased;
-  transition:background .5s ease, color .3s;
+  transition:color .3s;
   position:relative;
   overflow-x:hidden;
 }
-
-/* Hiệu ứng nền không gian ảo */
+@keyframes gradientShift{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
 body::before{
   content:'';
   position:fixed;
   top:0;left:0;right:0;bottom:0;
   background-image:
-    radial-gradient(circle at 15% 20%, rgba(99,102,241,0.15) 0%, transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(236,72,153,0.12) 0%, transparent 40%);
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255,255,255,.1) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,.08) 0%, transparent 50%);
   pointer-events:none;
   z-index:0;
+  animation:particlesMove 20s ease-in-out infinite;
 }
-
-.container{position:relative;z-index:1;max-width:1440px;margin:0 auto}
+@keyframes particlesMove{
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(30px,-20px) scale(1.1)}
+  66%{transform:translate(-20px,30px) scale(.95)}
+}
+.container{position:relative;z-index:1;max-width:1400px;margin:0 auto}
 
 /* Header */
 .hero{
   background:var(--bg-card);
-  backdrop-filter:blur(20px);
+  backdrop-filter:blur(30px) saturate(180%);
   border-radius:28px;
-  padding:32px 40px;
+  padding:36px 44px;
   box-shadow:var(--shadow);
-  display:flex;align-items:center;gap:24px;
+  display:flex;align-items:center;gap:28px;
+  animation:slideDown .7s cubic-bezier(.68,-.55,.27,1.55);
   margin-bottom:28px;
-  border:1px solid var(--border);
+  border:1px solid rgba(255,255,255,.3);
   position:relative;
   overflow:hidden;
 }
+.hero::before{
+  content:'';
+  position:absolute;
+  top:-50%;right:-50%;
+  width:200%;height:200%;
+  background:conic-gradient(from 0deg, transparent, rgba(102,126,234,.1), transparent 30%);
+  animation:rotateGlow 8s linear infinite;
+  pointer-events:none;
+}
+@keyframes rotateGlow{to{transform:rotate(360deg)}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:none}}
 .hero-icon{
-  font-size:56px;
+  font-size:64px;
   animation:float 3s ease-in-out infinite;
-  filter:drop-shadow(0 10px 15px rgba(99,102,241,0.3));
+  filter:drop-shadow(0 8px 20px rgba(102,126,234,.4));
+  position:relative;z-index:1;
 }
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-
+@keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-12px) rotate(5deg)}}
+.hero-content{position:relative;z-index:1}
 .hero-content h1{
-  font-size:32px;font-weight:900;letter-spacing:-0.5px;
-  background:linear-gradient(135deg,var(--primary),var(--secondary),var(--accent));
+  font-size:38px;font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(135deg,#667eea,#764ba2,#f093fb);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  margin-bottom:6px;
+  background-size:200% 200%;
+  animation:gradientText 3s ease infinite;
+  margin-bottom:8px;
 }
-.hero-content p{color:var(--text-muted);font-size:14px;font-weight:500}
-
+@keyframes gradientText{
+  0%,100%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+}
+.hero-content p{color:var(--text-muted);font-size:15px;font-weight:500}
 .hero-actions{
   margin-left:auto;
-  display:flex;gap:12px;align-items:center;
+  display:flex;gap:10px;align-items:center;
+  position:relative;z-index:1;
 }
 .btn-icon{
-  width:42px;height:42px;
-  border-radius:14px;
-  border:1px solid var(--border);
+  width:44px;height:44px;
+  border-radius:50%;
+  border:2px solid var(--border);
   background:var(--bg-card);
   color:var(--text);
   font-size:18px;
   cursor:pointer;
-  transition:all .3s cubic-bezier(.4,0,.2,1);
+  transition:all .3s cubic-bezier(.68,-.55,.27,1.55);
   display:flex;align-items:center;justify-content:center;
 }
 .btn-icon:hover{
-  transform:translateY(-2px);
+  transform:translateY(-3px) rotate(15deg);
   border-color:var(--primary);
-  box-shadow:0 8px 20px rgba(99,102,241,0.3);
+  box-shadow:0 8px 20px rgba(102,126,234,.3);
 }
 .btn-logout{
-  background:rgba(239, 68, 68, 0.1);
-  border:1px solid rgba(239, 68, 68, 0.3);
-  color:var(--danger);
-  padding:10px 16px;
-  border-radius:14px;
+  background:var(--bg-card);
+  border:2px solid var(--border);
+  color:var(--text);
+  padding:10px 18px;
+  border-radius:99px;
   font-size:13px;font-weight:700;
+  font-family:inherit;
   cursor:pointer;
   transition:all .3s;
   display:flex;align-items:center;gap:6px;
 }
 .btn-logout:hover{
-  background:var(--danger);
-  color:#fff;
+  border-color:var(--danger);
+  color:var(--danger);
+  background:rgba(245,101,101,.08);
   transform:translateY(-2px);
-  box-shadow:0 8px 20px rgba(239,68,68,0.4);
+  box-shadow:0 8px 20px rgba(245,101,101,.2);
 }
 .badge{
-  background:linear-gradient(135deg,var(--primary),var(--secondary));
-  color:#fff;padding:8px 16px;border-radius:12px;
-  font-size:12px;font-weight:700;
-  box-shadow:0 4px 12px rgba(99,102,241,0.4);
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  color:#fff;padding:10px 20px;border-radius:99px;
+  font-size:13px;font-weight:700;
+  box-shadow:0 8px 20px rgba(102,126,234,.4);
+  display:flex;align-items:center;gap:6px;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 8px 20px rgba(102,126,234,.4)}
+  50%{box-shadow:0 8px 30px rgba(102,126,234,.7)}
 }
 
 /* Stats bar */
 .stats{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
   gap:16px;
   margin-bottom:28px;
 }
 .stat-card{
   background:var(--bg-card);
-  backdrop-filter:blur(16px);
-  padding:18px 22px;
-  border-radius:20px;
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
+  backdrop-filter:blur(20px);
+  padding:20px 24px;
+  border-radius:18px;
+  box-shadow:0 8px 24px rgba(0,0,0,.1);
+  border:1px solid rgba(255,255,255,.2);
   transition:all .3s;
+  animation:fadeInUp .6s ease-out backwards;
 }
-.stat-card:hover{transform:translateY(-3px);border-color:var(--primary)}
-.stat-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px}
-.stat-value{font-size:24px;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-card:nth-child(1){animation-delay:.1s}
+.stat-card:nth-child(2){animation-delay:.2s}
+.stat-card:nth-child(3){animation-delay:.3s}
+.stat-card:nth-child(4){animation-delay:.4s}
+.stat-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 16px 40px rgba(0,0,0,.15);
+}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.stat-label{
+  font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;
+  color:var(--text-muted);margin-bottom:6px;
+}
+.stat-value{
+  font-size:22px;font-weight:800;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
 
-/* Main Layout */
+/* Main grid */
 .main{
   display:grid;
-  grid-template-columns:1.3fr 1fr;
+  grid-template-columns:1.4fr 1fr;
   gap:24px;align-items:start;
 }
 @media(max-width:1024px){.main{grid-template-columns:1fr}}
 
+/* Cards */
 .card{
   background:var(--bg-card);
   backdrop-filter:blur(20px);
   border-radius:24px;
   box-shadow:var(--shadow);
-  border:1px solid var(--border);
   overflow:hidden;
+  animation:fadeInUp .6s ease-out;
+  border:1px solid rgba(255,255,255,.2);
+  transition:all .3s;
 }
 .card-header{
-  padding:20px 24px;
-  background:rgba(99,102,241,0.05);
+  padding:22px 28px;
+  background:linear-gradient(135deg,rgba(102,126,234,.08),rgba(118,75,162,.08));
   border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
+  display:flex;align-items:center;gap:12px;
 }
-.card-header h2{font-size:16px;font-weight:800;display:flex;align-items:center;gap:10px}
-.card-body{padding:24px}
-
-/* Quick Demo Button */
-.btn-sample{
-  background:rgba(99,102,241,0.1);
-  border:1px solid rgba(99,102,241,0.3);
-  color:var(--primary);
-  padding:6px 12px;border-radius:8px;
-  font-size:11px;font-weight:700;cursor:pointer;
-  transition:all .2s;
+.card-header h2{
+  font-size:18px;font-weight:800;color:var(--text);
+  display:flex;align-items:center;gap:10px;
 }
-.btn-sample:hover{background:var(--primary);color:#fff}
+.card-header .dot{
+  width:12px;height:12px;border-radius:50%;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  box-shadow:0 0 0 4px rgba(102,126,234,.2);
+  animation:pulseDot 2s ease-in-out infinite;
+}
+@keyframes pulseDot{
+  0%,100%{box-shadow:0 0 0 4px rgba(102,126,234,.2)}
+  50%{box-shadow:0 0 0 8px rgba(102,126,234,.1)}
+}
+.card-body{padding:28px}
 
-/* Form Groups */
+/* Warning */
 .warning{
-  background:rgba(245,158,11,0.1);
-  border-left:4px solid var(--warning);
-  padding:12px 16px;border-radius:10px;
-  font-size:12px;color:var(--warning);
-  margin-bottom:20px;
-  display:flex;gap:8px;align-items:center;
+  background:linear-gradient(135deg,rgba(245,101,101,.1),rgba(245,101,101,.05));
+  border-left:4px solid var(--danger);
+  padding:14px 18px;border-radius:12px;
+  font-size:13px;color:var(--danger-dark);
+  margin-bottom:24px;
+  display:flex;gap:10px;align-items:flex-start;
+  animation:slideInLeft .5s ease-out;
 }
-.group{margin-bottom:24px}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:none}}
+.warning::before{content:'⚠️';font-size:16px;flex-shrink:0}
+
+/* Feature groups */
+.group{margin-bottom:28px;animation:fadeInUp .5s ease-out backwards}
+.group:nth-child(1){animation-delay:.1s}
+.group:nth-child(2){animation-delay:.2s}
+.group:nth-child(3){animation-delay:.3s}
 .group-title{
-  font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;
-  padding:6px 14px;border-radius:8px;display:inline-block;
-  margin-bottom:12px;
+  font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;
+  padding:8px 16px;border-radius:99px;display:inline-flex;align-items:center;gap:8px;
+  margin-bottom:16px;
 }
-.group-mean .group-title{background:rgba(59,130,246,0.15);color:#3b82f6}
-.group-error .group-title{background:rgba(245,158,11,0.15);color:#f59e0b}
-.group-worst .group-title{background:rgba(239,68,68,0.15);color:#ef4444}
-
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:600px){.grid{grid-template-columns:1fr}}
-
+.group-mean .group-title{background:linear-gradient(135deg,#ebf4ff,#bee3f8);color:#2b6cb0}
+.group-error .group-title{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e}
+.group-worst .group-title{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#991b1b}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
 .field{position:relative}
-.field label{display:block;font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:4px}
-.field input{
-  width:100%;padding:10px 14px;
-  border:1px solid var(--border);border-radius:10px;
-  font-size:13px;font-family:'JetBrains Mono',monospace;
-  background:rgba(0,0,0,0.05);
-  color:var(--text);
-  transition:all .2s;
+.field label{
+  display:block;font-size:12px;font-weight:700;
+  color:var(--text-muted);margin-bottom:6px;
+  transition:color .2s;
 }
-[data-theme="light"] .field input{background:#f8fafc}
+.field:hover label{color:var(--primary)}
+.field input{
+  width:100%;padding:12px 16px;
+  border:2px solid var(--border);border-radius:12px;
+  font-size:14px;font-family:'JetBrains Mono',monospace;
+  font-weight:600;
+  transition:all .3s cubic-bezier(.68,-.55,.27,1.55);
+  background:var(--bg-card);
+  color:var(--text);
+}
 .field input:focus{
   outline:none;border-color:var(--primary);
-  box-shadow:0 0 0 3px rgba(99,102,241,0.2);
-  background:transparent;
+  box-shadow:0 0 0 4px rgba(102,126,234,.15);
+  transform:translateY(-2px);
+}
+.field input:hover:not(:focus){
+  border-color:var(--primary);
+  transform:translateY(-1px);
 }
 
-/* Action Buttons */
+/* Predict button */
 .btn-predict{
-  width:100%;padding:16px;
-  background:linear-gradient(135deg,var(--primary),var(--secondary),var(--accent));
-  color:#fff;border:none;border-radius:14px;
-  font-size:16px;font-weight:800;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  transition:all .3s;
-  box-shadow:0 10px 25px rgba(99,102,241,0.4);
+  width:100%;padding:18px 24px;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);
+  background-size:200% 200%;
+  color:#fff;border:none;border-radius:16px;
+  font-size:17px;font-weight:800;font-family:inherit;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  transition:all .4s cubic-bezier(.68,-.55,.27,1.55);
+  box-shadow:0 10px 30px rgba(102,126,234,.4);
+  position:relative;overflow:hidden;
+  animation:gradientText 3s ease infinite;
+  letter-spacing:.5px;
 }
-.btn-predict:hover{transform:translateY(-2px);box-shadow:0 15px 35px rgba(99,102,241,0.6)}
-.btn-predict:active{transform:translateY(0)}
-.btn-predict:disabled{opacity:.7;cursor:not-allowed}
+.btn-predict::before{
+  content:'';
+  position:absolute;top:0;left:-100%;
+  width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);
+  transition:left .6s;
+}
+.btn-predict:hover::before{left:100%}
+.btn-predict:hover{
+  transform:translateY(-3px) scale(1.02);
+  box-shadow:0 16px 40px rgba(102,126,234,.6);
+}
+.btn-predict:active{transform:translateY(-1px) scale(.98)}
+.btn-predict:disabled{opacity:.7;cursor:not-allowed;transform:none}
 
+/* Spinner */
 .spinner{
-  width:18px;height:18px;
-  border:3px solid rgba(255,255,255,0.3);
+  width:20px;height:20px;
+  border:3px solid rgba(255,255,255,.3);
   border-top-color:#fff;border-radius:50%;
   animation:spin .7s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Result Panel */
+/* Result panel */
 .result-panel{position:sticky;top:24px}
-.result-empty{text-align:center;padding:50px 20px;color:var(--text-muted)}
-.result-empty .icon{font-size:64px;margin-bottom:12px;opacity:.5}
-
-.result-box{
-  border-radius:20px;padding:28px;
-  animation:popIn .4s cubic-bezier(.34,1.56,.64,1);
-  position:relative;
+.result-empty{
+  text-align:center;padding:60px 20px;color:var(--text-muted);
 }
-@keyframes popIn{0%{opacity:0;transform:scale(.9)}100%{opacity:1;transform:scale(1)}}
+.result-empty .icon{
+  font-size:80px;margin-bottom:16px;
+  animation:float 3s ease-in-out infinite;
+  opacity:.5;
+}
+.result-empty p{font-size:14px;line-height:1.6}
+.result-box{
+  border-radius:20px;padding:32px;
+  animation:popIn .5s cubic-bezier(.68,-.55,.27,1.55);
+  position:relative;overflow:hidden;
+}
+.result-box::before{
+  content:'';
+  position:absolute;top:-50%;left:-50%;
+  width:200%;height:200%;
+  background:conic-gradient(from 0deg, transparent, rgba(255,255,255,.2), transparent 30%);
+  animation:rotateGlow 6s linear infinite;
+  pointer-events:none;
+}
+@keyframes popIn{0%{opacity:0;transform:scale(.85)}100%{opacity:1;transform:scale(1)}}
 .result-box.malignant{
-  background:rgba(239, 68, 68, 0.1);
+  background:linear-gradient(135deg,rgba(245,101,101,.15),rgba(197,48,48,.1));
   border:2px solid var(--danger);
 }
 .result-box.benign{
-  background:rgba(16, 185, 129, 0.1);
+  background:linear-gradient(135deg,rgba(72,187,120,.15),rgba(47,133,90,.1));
   border:2px solid var(--success);
 }
-.result-icon{font-size:60px;text-align:center;margin-bottom:12px}
-.result-box h3{font-size:26px;text-align:center;margin-bottom:4px;font-weight:900}
-.result-box.malignant h3{color:var(--danger)}
-.result-box.benign h3{color:var(--success)}
-.result-label{text-align:center;color:var(--text-muted);font-size:12px;margin-bottom:16px;font-weight:600}
-
-.prob-value{font-size:48px;font-weight:900;text-align:center;font-family:'JetBrains Mono',monospace;margin-bottom:12px}
-.result-box.malignant .prob-value{color:var(--danger)}
-.result-box.benign .prob-value{color:var(--success)}
-
-.prob-bar{height:12px;background:rgba(0,0,0,0.1);border-radius:99px;overflow:hidden;margin:16px 0}
-[data-theme="dark"] .prob-bar{background:rgba(255,255,255,0.1)}
-.prob-fill{height:100%;border-radius:99px;transition:width 1s ease-in-out}
-.result-box.malignant .prob-fill{background:var(--danger)}
-.result-box.benign .prob-fill{background:var(--success)}
-
+.result-icon{
+  font-size:72px;text-align:center;margin-bottom:16px;
+  animation:bounceIn .6s cubic-bezier(.68,-.55,.27,1.55);
+  position:relative;z-index:1;
+}
+@keyframes bounceIn{
+  0%{transform:scale(0) rotate(-180deg)}
+  60%{transform:scale(1.2) rotate(10deg)}
+  100%{transform:scale(1) rotate(0)}
+}
+.result-box h3{
+  font-size:28px;text-align:center;margin-bottom:8px;font-weight:900;
+  letter-spacing:-.5px;position:relative;z-index:1;
+}
+.result-box.malignant h3{color:var(--danger-dark)}
+.result-box.benign h3{color:var(--success-dark)}
+.result-label{
+  text-align:center;color:var(--text-muted);font-size:13px;
+  margin-bottom:16px;font-weight:600;letter-spacing:.5px;
+  position:relative;z-index:1;
+}
+.prob-value{
+  font-size:56px;font-weight:900;text-align:center;
+  margin-bottom:8px;position:relative;z-index:1;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:-2px;
+  animation:countUp 1s ease-out;
+}
+@keyframes countUp{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+.result-box.malignant .prob-value{color:var(--danger-dark)}
+.result-box.benign .prob-value{color:var(--success-dark)}
+.prob-bar{
+  height:16px;background:rgba(255,255,255,.5);
+  border-radius:99px;overflow:hidden;margin:20px 0;
+  position:relative;z-index:1;
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.1);
+}
+.prob-fill{
+  height:100%;border-radius:99px;
+  animation:fillBar 1.2s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+.prob-fill::after{
+  content:'';
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
+  animation:shimmer 2s ease-in-out infinite;
+}
+.result-box.malignant .prob-fill{background:linear-gradient(90deg,#fc8181,#c53030)}
+.result-box.benign .prob-fill{background:linear-gradient(90deg,#68d391,#2f855a)}
+@keyframes fillBar{from{width:0}}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 .meta-info{
-  background:rgba(0,0,0,0.04);
-  border-radius:12px;padding:14px;margin-top:16px;
-  font-size:12px;line-height:1.8;
+  background:rgba(255,255,255,.5);
+  backdrop-filter:blur(10px);
+  border-radius:12px;padding:16px;margin-top:20px;
+  font-size:12px;line-height:2;color:var(--text);
+  position:relative;z-index:1;
+  border:1px solid rgba(255,255,255,.3);
 }
-[data-theme="dark"] .meta-info{background:rgba(255,255,255,0.04)}
-
+.meta-info strong{color:var(--text);font-weight:700}
 .disclaimer{
-  margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);
-  font-size:11px;font-style:italic;color:var(--text-muted);text-align:center;
+  margin-top:16px;padding-top:16px;
+  border-top:1px dashed var(--border);
+  font-size:11px;font-style:italic;color:var(--text-muted);
+  text-align:center;position:relative;z-index:1;
 }
-
-.footer{max-width:1440px;margin:30px auto 0;text-align:center;color:var(--text-muted);font-size:12px}
-.footer a{color:var(--primary);text-decoration:none;font-weight:700}
+/* Footer */
+.footer{
+  max-width:1400px;margin:40px auto 0;
+  text-align:center;color:rgba(255,255,255,.9);
+  font-size:13px;
+  text-shadow:0 2px 4px rgba(0,0,0,.2);
+  padding:20px;
+}
+.footer a{color:#fff;text-decoration:none;font-weight:700;border-bottom:2px solid rgba(255,255,255,.3)}
+.footer a:hover{border-bottom-color:#fff}
+/* Error box */
+.error-box{
+  background:linear-gradient(135deg,rgba(245,101,101,.15),rgba(197,48,48,.1));
+  border:2px solid var(--danger);
+  border-radius:16px;padding:24px;text-align:center;color:var(--danger-dark);
+  animation:shake .4s;
+}
+.error-box h3{margin-bottom:8px;font-size:20px;font-weight:800}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+/* Skeleton */
+.skeleton{
+  background:linear-gradient(90deg,rgba(240,240,240,.5) 25%,rgba(224,224,224,.8) 50%,rgba(240,240,240,.5) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.5s infinite;
+  border-radius:8px;height:20px;margin:8px 0;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+/* Confetti */
+.confetti{
+  position:fixed;top:-10px;
+  width:10px;height:10px;
+  animation:confettiFall 3s linear forwards;
+  z-index:9999;pointer-events:none;
+  border-radius:2px;
+}
+@keyframes confettiFall{
+  0%{transform:translateY(0) rotate(0deg);opacity:1}
+  100%{transform:translateY(100vh) rotate(720deg);opacity:0}
+}
+/* Tooltip */
+.field-tip{
+  position:absolute;top:100%;left:0;
+  background:rgba(0,0,0,.85);color:#fff;
+  padding:6px 12px;border-radius:6px;
+  font-size:11px;font-weight:500;
+  opacity:0;pointer-events:none;
+  transition:opacity .2s;
+  white-space:nowrap;z-index:10;
+  margin-top:4px;
+}
+.field:hover .field-tip{opacity:1}
+/* Scrollbar */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:rgba(255,255,255,.1)}
+::-webkit-scrollbar-thumb{
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  border-radius:99px;
+}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(135deg,#764ba2,#667eea)}
 </style>
 </head>
 <body>
 
 <div class="container">
+
   <!-- Hero Header -->
   <div class="hero">
     <div class="hero-icon">🩺</div>
     <div class="hero-content">
-      <h1>Breast Cancer AI Suite</h1>
-      <p>Hệ thống phân tích và chẩn đoán tế bào học thông minh dựa trên mô hình SVM</p>
+      <h1>Breast Cancer SVM</h1>
+      <p>Hệ thống hỗ trợ chẩn đoán AI · 30 đặc trưng tế bào · SVM RBF</p>
     </div>
     <div class="hero-actions">
-      <button class="btn-logout" onclick="handleUserLogout()">🚪 Đăng xuất</button>
-      <button class="btn-icon" id="themeToggle" title="Đổi giao diện">🌙</button>
-      <div class="badge">v1.0.0</div>
+      <button class="btn-logout" onclick="handleUserLogout()" title="Đăng xuất">
+        🚪 Đăng xuất
+      </button>
+      <button class="btn-icon" id="themeToggle" title="Chuyển sáng/tối">🌙</button>
+      <div class="badge">✨ v1.0.0</div>
     </div>
   </div>
 
   <!-- Stats Bar -->
   <div class="stats">
     <div class="stat-card">
-      <div class="stat-label">🎯 Độ chính xác</div>
+      <div class="stat-label">🎯 Accuracy</div>
       <div class="stat-value">97.0%</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">🔬 Độ nhạy (Sensitivity)</div>
+      <div class="stat-label">🔬 Sensitivity</div>
       <div class="stat-value">97.6%</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">📊 Chỉ số ROC-AUC</div>
+      <div class="stat-label">📊 ROC-AUC</div>
       <div class="stat-value">0.997</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">⚡ Thuật toán</div>
+      <div class="stat-label">⚡ Model</div>
       <div class="stat-value">SVM RBF</div>
     </div>
   </div>
 
-  <!-- Main Content -->
+  <!-- Main Grid -->
   <div class="main">
     <div class="card">
       <div class="card-header">
-        <h2>🧬 Nhập tham số đặc trưng tế bào</h2>
-        <button class="btn-sample" type="button" onclick="loadSampleData()">⚡ Điền dữ liệu mẫu</button>
+        <div class="dot"></div>
+        <h2>🧬 Nhập đặc trưng tế bào</h2>
       </div>
       <div class="card-body">
         <div class="warning">
-          <span>⚠️ <strong>Lưu ý y khoa:</strong> Ứng dụng mô phỏng giáo dục, không dùng để chẩn đoán bệnh thực tế.</span>
+          <div>
+            <strong>Cảnh báo:</strong> Demo giáo dục. Kết quả <strong>KHÔNG</strong> thay thế chẩn đoán y khoa.
+          </div>
         </div>
         <form id="predictForm">
           <div id="formGroups"></div>
-          <div style="display:flex;gap:12px;margin-top:24px">
-            <button type="button" class="btn-icon" id="resetBtn" title="Đặt lại" style="width:auto;padding:0 20px;border-radius:14px;height:52px">🔄</button>
+          <div style="display:flex;gap:12px;margin-top:20px">
+            <button type="button" class="btn-icon" id="resetBtn" title="Reset về mẫu" style="width:auto;padding:0 20px;border-radius:14px;height:56px">
+              🔄 Reset
+            </button>
             <button type="button" class="btn-predict" id="submitBtn" style="flex:1">
-              <span id="btnContent">🔍 Tiến hành dự đoán AI</span>
+              <span id="btnContent">🔍 Dự đoán ngay</span>
             </button>
           </div>
         </form>
       </div>
     </div>
-
     <div class="result-panel">
       <div class="card">
         <div class="card-header">
-          <h2>📊 Kết quả phân tích chuyên sâu</h2>
+          <div class="dot"></div>
+          <h2>📊 Kết quả dự đoán</h2>
         </div>
         <div class="card-body">
           <div class="result-empty" id="resultEmpty">
-            <div class="icon">🔬</div>
-            <p>Hệ thống đã sẵn sàng.<br>Vui lòng điền thông số và bấm <strong>Dự đoán AI</strong>.</p>
+            <div class="icon">📊</div>
+            <p>Nhập đặc trưng và bấm<br><strong>Dự đoán</strong> để xem kết quả</p>
           </div>
           <div id="resultContainer"></div>
         </div>
@@ -378,8 +584,9 @@ body::before{
   </div>
 
   <div class="footer">
-    Powered by FastAPI + scikit-learn · Secure Auth Enabled · Designed with 💜
+    ⚡ Powered by FastAPI + scikit-learn · Deploy on <a href="https://render.com" target="_blank">Render</a> · Made with 💜
   </div>
+
 </div>
 
 <script>
@@ -397,6 +604,19 @@ const SAMPLE = {
   "worst concave points":0.2654,"worst symmetry":0.4601,"worst fractal dimension":0.1189
 };
 
+const TOOLTIPS = {
+  "mean radius":"Bán kính trung bình của nhân tế bào",
+  "mean texture":"Độ nhám bề mặt trung bình",
+  "mean perimeter":"Chu vi trung bình",
+  "mean area":"Diện tích trung bình",
+  "mean smoothness":"Độ mịn cục bộ trung bình",
+  "mean compactness":"Độ đặc trung bình = (chu vi² / diện tích) - 1",
+  "mean concavity":"Độ lõm trung bình của đường viền",
+  "mean concave points":"Số điểm lõm trung bình",
+  "mean symmetry":"Đối xứng trung bình",
+  "mean fractal dimension":"Chiều fractal trung bình = 'độ gồ ghề' đường viền",
+};
+
 const GROUPS = [
   {title:"📐 Mean (Giá trị trung bình)", keys:Object.keys(SAMPLE).slice(0,10), cls:"group-mean"},
   {title:"📏 Error (Sai số chuẩn)", keys:Object.keys(SAMPLE).slice(10,20), cls:"group-error"},
@@ -409,9 +629,11 @@ GROUPS.forEach(g => {
   div.className = "group " + g.cls;
   let html = `<div class="group-title">${g.title}</div><div class="grid">`;
   g.keys.forEach(k => {
+    const tip = TOOLTIPS[k] || k.replace(/_/g," ");
     html += `<div class="field">
       <label>${k}</label>
       <input type="number" step="any" name="${k}" value="${SAMPLE[k]}" required>
+      <div class="field-tip">${tip}</div>
     </div>`;
   });
   html += `</div>`;
@@ -419,32 +641,55 @@ GROUPS.forEach(g => {
   formGroups.appendChild(div);
 });
 
-function loadSampleData() {
+// Theme toggle
+const themeToggle = document.getElementById("themeToggle");
+themeToggle.addEventListener("click", () => {
+  const current = document.documentElement.getAttribute("data-theme");
+  const next = current === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  themeToggle.textContent = next === "dark" ? "☀️" : "🌙";
+});
+
+// Reset
+document.getElementById("resetBtn").addEventListener("click", () => {
   document.querySelectorAll("#predictForm input").forEach(input => {
     if (SAMPLE[input.name] !== undefined) {
       input.value = SAMPLE[input.name];
     }
   });
-}
-
-// Chế độ sáng / tối
-const themeToggle = document.getElementById("themeToggle");
-themeToggle.addEventListener("click", () => {
-  const current = document.documentElement.getAttribute("data-theme");
-  const next = current === "light" ? "dark" : "light";
-  document.documentElement.setAttribute("data-theme", next);
-  themeToggle.textContent = next === "light" ? "☀️" : "🌙";
 });
 
-document.getElementById("resetBtn").addEventListener("click", loadSampleData);
-
+// Logout
 async function handleUserLogout() {
   try {
-    await fetch("/logout", { method: "POST", credentials: "include" });
+    await fetch("/logout", { 
+      method: "POST", 
+      credentials: "include" 
+    });
   } catch (err) {
-    console.error(err);
+    console.error("Lỗi:", err);
   } finally {
+    sessionStorage.clear();
+    localStorage.clear();
     window.location.replace("/?t=" + new Date().getTime());
+  }
+}
+
+// Confetti
+function createConfetti() {
+  const colors = ['#f56565','#ed8936','#ecc94b','#48bb78','#4299e1','#9f7aea','#ed64a6'];
+  for (let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      const c = document.createElement("div");
+      c.className = "confetti";
+      c.style.left = Math.random() * 100 + "vw";
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.width = (Math.random() * 8 + 6) + "px";
+      c.style.height = c.style.width;
+      c.style.animationDuration = (Math.random() * 2 + 2) + "s";
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }, i * 30);
   }
 }
 
@@ -455,10 +700,15 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   const resultContainer = document.getElementById("resultContainer");
 
   btn.disabled = true;
-  btnContent.innerHTML = '<div class="spinner"></div> Đang xử lý mô hình AI...';
+  btnContent.innerHTML = '<div class="spinner"></div> Đang phân tích (có thể mất vài giây để khởi động server)...';
 
   resultEmpty.style.display = "none";
-  resultContainer.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted)">Đang tính toán ma trận đặc trưng...</div>`;
+  resultContainer.innerHTML = `
+    <div class="skeleton" style="width:60%;height:72px;margin:20px auto"></div>
+    <div class="skeleton" style="width:80%;height:24px;margin:16px auto"></div>
+    <div class="skeleton" style="height:16px;margin:16px 0"></div>
+    <div class="skeleton" style="width:40%;height:20px;margin:16px auto"></div>
+  `;
 
   const inputs = document.querySelectorAll("#predictForm input");
   const features = {};
@@ -467,16 +717,29 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
     features[input.name] = parseFloat(val) || 0;
   });
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
   try {
     const res = await fetch(`${API}/predict`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       credentials: "include",
-      body: JSON.stringify({features})
+      body: JSON.stringify({features}),
+      signal: controller.signal
     });
 
+    clearTimeout(timeoutId);
+
+   if (res.status === 401) {
+    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    window.location.href = "/";
+    return;
+}
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail ? JSON.stringify(data.detail) : "Lỗi dự đoán");
+    if (!res.ok) {
+      throw new Error(data.detail ? JSON.stringify(data.detail) : `Lỗi server (${res.status})`);
+    }
 
     const isMalignant = data.predicted_class === 0;
     const prob = isMalignant ? data.probability_malignant : data.probability_benign;
@@ -487,29 +750,40 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
     resultContainer.innerHTML = `
       <div class="result-box ${isMalignant ? "malignant" : "benign"}">
         <div class="result-icon">${isMalignant ? "⚠️" : "✅"}</div>
-        <h3>${isMalignant ? "Malignant (Ác tính)" : "Benign (Lành tính)"}</h3>
-        <div class="result-label">${isMalignant ? "Cần chỉ định kiểm tra y tế chuyên sâu" : "Nguy cơ ở mức thấp / An toàn"}</div>
+        <h3>${isMalignant ? "Malignant" : "Benign"}</h3>
+        <div class="result-label">${isMalignant ? "ÁC TÍNH — Cần kiểm tra chuyên sâu" : "LÀNH TÍNH — Nguy cơ thấp"}</div>
         <div class="prob-value">${probPct}%</div>
+        <div class="result-label">Độ tin cậy cho lớp ${isMalignant ? "Malignant" : "Benign"}</div>
         <div class="prob-bar">
           <div class="prob-fill" style="width:${probPct}%"></div>
         </div>
         <div class="meta-info">
-          <div><strong>Xác suất Ác tính (Malignant):</strong> ${malPct}%</div>
-          <div><strong>Xác suất Lành tính (Benign):</strong> ${benPct}%</div>
-          <div><strong>Phiên bản Model:</strong> ${data.model_version || '1.0.0'}</div>
+          <div><strong>Xác suất Malignant:</strong> ${malPct}%</div>
+          <div><strong>Xác suất Benign:</strong> ${benPct}%</div>
+          <div><strong>Model:</strong> ${data.model_version || 'SVM RBF'}</div>
         </div>
         <div class="disclaimer">${data.warning || ''}</div>
       </div>
     `;
+
+    if (isMalignant) createConfetti();
+
   } catch (err) {
+    let errorMsg = err.message;
+    if (err.name === 'AbortError') {
+      errorMsg = "Server phản hồi quá chậm (Timeout sau 30 giây). Nếu bạn dùng Render miễn phí, hãy đợi server khởi động lại rồi bấm thử lần nữa.";
+    }
+    
     resultContainer.innerHTML = `
-      <div style="background:rgba(239,68,68,0.1);border:1px solid var(--danger);padding:16px;border-radius:12px;color:var(--danger)">
-        <strong>Lỗi kết nối:</strong> ${err.message}
+      <div class="error-box">
+        <h3>❌ Lỗi kết nối</h3>
+        <p style="font-size:13px">${errorMsg}</p>
+        <p style="font-size:12px;margin-top:8px;opacity:.7">Hãy kiểm tra lại terminal chạy FastAPI của bạn</p>
       </div>
     `;
   } finally {
     btn.disabled = false;
-    btnContent.innerHTML = "🔍 Tiến hành dự đoán AI";
+    btnContent.innerHTML = "🔍 Dự đoán ngay";
   }
 });
 </script>
