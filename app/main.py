@@ -9,6 +9,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from jose import JWTError, jwt
 from pydantic import BaseModel, Field
+import os
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 MODEL_PATH = BASE_DIR / "artifacts/breast_cancer_svm.joblib"
@@ -27,6 +28,9 @@ ALGORITHM = "HS256"
 
 # ⏰ THỜI GIAN SESSION (đơn vị: GIÂY)
 TOKEN_EXPIRE_SECONDS = 86400
+
+# 🌐 TỰ ĐỘNG NHẬN DIỆN MÔI TRƯỜNG (Local hay Production trên Render)
+IS_PRODUCTION = os.getenv("RENDER", False) or os.getenv("ENVIRONMENT", "") == "production"
 
 app = FastAPI(
     title="Breast Cancer SVM API",
@@ -109,7 +113,7 @@ def login(data: LoginRequest, response: Response):
         value=token,
         httponly=True,
         samesite="lax",
-        secure=False,      # <-- Đổi từ True thành False để chạy được trên http://localhost
+        secure=IS_PRODUCTION,  # <--- Tự động True khi lên Render, False khi chạy local
         path="/",
     )
     return {
@@ -118,17 +122,15 @@ def login(data: LoginRequest, response: Response):
         "expires_in_seconds": TOKEN_EXPIRE_SECONDS,
     }
 
-
 @app.post("/logout")
 def logout(response: Response):
     response.delete_cookie(
         key="access_token",
         path="/",
         samesite="lax",
-        secure=False,      # <-- Đổi thành False ở đây luôn
+        secure=IS_PRODUCTION,  # <--- Tự động khớp với lúc login
     )
     return {"ok": True}
-
 
 @app.get("/me")
 def me(user: str = Depends(require_auth)):
