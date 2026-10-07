@@ -4,68 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Đăng nhập — Breast Cancer SVM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{
-  --primary:#6366f1;
-  --primary-dark:#4f46e5;
-  --secondary:#8b5cf6;
-  --bg-app:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#311042 100%);
-  --bg-card:rgba(30, 41, 59, 0.85);
-  --text:#f8fafc;
-  --text-muted:#94a3b8;
-  --border:rgba(255, 255, 255, 0.12);
-  --input-bg:rgba(0, 0, 0, 0.2);
-  --shadow:0 25px 50px -12px rgba(0, 0, 0, 0.5);
-}
-[data-theme="light"]{
-  --bg-app:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);
-  --bg-card:rgba(255,255,255,.95);
-  --text:#1e293b;
-  --text-muted:#64748b;
-  --border:rgba(0, 0, 0, 0.1);
-  --input-bg:#f8fafc;
-  --shadow:0 20px 40px rgba(0,0,0,.15);
-}
 *{box-sizing:border-box;margin:0;padding:0}
 body{
   font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-  background:var(--bg-app);
-  background-attachment:fixed;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);
   min-height:100vh;
   display:flex;align-items:center;justify-content:center;
   padding:20px;
-  color:var(--text);
   -webkit-font-smoothing:antialiased;
-  transition:background .5s ease, color .3s;
-  position:relative;
 }
-
-/* Nút đổi theme góc trên */
-.theme-toggle{
-  position:absolute;top:24px;right:24px;
-  width:42px;height:42px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background:var(--bg-card);
-  color:var(--text);
-  font-size:18px;
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .3s;
-  backdrop-filter:blur(10px);
-}
-.theme-toggle:hover{transform:translateY(-2px);border-color:var(--primary)}
 
 .login-card{
-  background:var(--bg-card);
+  background:rgba(255,255,255,.98);
   backdrop-filter:blur(20px);
-  border-radius:28px;
+  border-radius:24px;
   padding:48px 40px;
   max-width:420px;width:100%;
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
+  box-shadow:0 30px 80px rgba(0,0,0,.25);
   animation:slideUp .5s cubic-bezier(.68,-.55,.27,1.55);
 }
 @keyframes slideUp{0%{opacity:0;transform:translateY(30px)}100%{opacity:1;transform:none}}
@@ -73,63 +29,61 @@ body{
 .logo{
   text-align:center;font-size:64px;margin-bottom:16px;
   animation:float 3s ease-in-out infinite;
-  filter:drop-shadow(0 10px 15px rgba(99,102,241,0.3));
 }
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
 h1{
   text-align:center;
-  font-size:26px;font-weight:900;letter-spacing:-.5px;
-  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  font-size:26px;font-weight:800;letter-spacing:-.5px;
+  background:linear-gradient(135deg,#667eea,#764ba2);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   margin-bottom:8px;
 }
-.subtitle{text-align:center;color:var(--text-muted);font-size:14px;margin-bottom:32px;font-weight:500}
+.subtitle{text-align:center;color:#718096;font-size:14px;margin-bottom:32px}
 
 .field{margin-bottom:20px}
 .field label{
-  display:block;font-size:12px;font-weight:700;
-  color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;
+  display:block;font-size:13px;font-weight:600;
+  color:#4a5568;margin-bottom:8px;
 }
 .field input{
   width:100%;padding:14px 16px;
-  border:1px solid var(--border);border-radius:14px;
+  border:2px solid #e2e8f0;border-radius:12px;
   font-size:15px;font-family:inherit;
-  background:var(--input-bg);
-  color:var(--text);
+  background:#f7fafc;
   transition:all .2s;
 }
 .field input:focus{
-  outline:none;border-color:var(--primary);
-  background:transparent;
-  box-shadow:0 0 0 4px rgba(99,102,241,0.2);
+  outline:none;border-color:#667eea;
+  background:#fff;
+  box-shadow:0 0 0 4px rgba(102,126,234,.15);
 }
 
 .btn-login{
   width:100%;padding:16px;
-  background:linear-gradient(135deg,var(--primary),var(--secondary));
-  color:#fff;border:none;border-radius:14px;
-  font-size:16px;font-weight:800;font-family:inherit;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  color:#fff;border:none;border-radius:12px;
+  font-size:16px;font-weight:700;font-family:inherit;
   cursor:pointer;
   transition:all .3s;
-  box-shadow:0 10px 25px rgba(99,102,241,0.4);
+  box-shadow:0 8px 24px rgba(102,126,234,.35);
   display:flex;align-items:center;justify-content:center;gap:10px;
 }
-.btn-login:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 15px 35px rgba(99,102,241,0.6)}
+.btn-login:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 32px rgba(102,126,234,.5)}
 .btn-login:disabled{opacity:.7;cursor:not-allowed}
 
 .spinner{
   width:18px;height:18px;
-  border:3px solid rgba(255,255,255,.3);
+  border:2px solid rgba(255,255,255,.3);
   border-top-color:#fff;border-radius:50%;
   animation:spin .8s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
 .error{
-  background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);
-  border-radius:12px;padding:12px 16px;
-  color:#ef4444;font-size:13px;font-weight:600;
+  background:#fff5f5;border:2px solid #f56565;
+  border-radius:10px;padding:12px 16px;
+  color:#742a2a;font-size:13px;
   margin-bottom:20px;
   display:none;
   animation:shake .4s;
@@ -138,54 +92,42 @@ h1{
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 
 .info{
-  text-align:center;font-size:12px;color:var(--text-muted);
+  text-align:center;font-size:12px;color:#a0aec0;
   margin-top:24px;line-height:1.6;
 }
-.info strong{color:var(--text)}
+.info strong{color:#4a5568}
 </style>
 </head>
 <body>
-
-<button class="theme-toggle" id="themeToggle" title="Đổi giao diện">🌙</button>
-
 <div class="login-card">
   <div class="logo">🩺</div>
   <h1>Breast Cancer SVM</h1>
-  <p class="subtitle">Đăng nhập cổng thông tin AI</p>
+  <p class="subtitle">Đăng nhập để tiếp tục</p>
 
   <div class="error" id="errorBox"></div>
 
   <form id="loginForm">
     <div class="field">
       <label>Tên đăng nhập</label>
-      <input type="text" id="username" placeholder="Nhập username..." required autocomplete="username">
+      <input type="text" id="username" placeholder="dong2006" required autocomplete="username">
     </div>
     <div class="field">
       <label>Mật khẩu</label>
       <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
     </div>
     <button type="submit" class="btn-login" id="submitBtn">
-      <span id="btnContent">🔐 Đăng nhập hệ thống</span>
+      <span id="btnContent">🔐 Đăng nhập</span>
     </button>
   </form>
 
   <p class="info">
-    Mô hình giáo dục · <strong>Bảo mật xác thực Cookie</strong><br>
-    Powered by FastAPI + scikit-learn
+    Demo giáo dục · <strong>Không</strong> thay thế chẩn đoán y khoa<br>
+    Powered by FastAPI + SVM
   </p>
 </div>
 
 <script>
 const API = window.location.origin;
-
-// Xử lý đổi giao diện sáng/tối
-const themeToggle = document.getElementById("themeToggle");
-themeToggle.addEventListener("click", () => {
-  const current = document.documentElement.getAttribute("data-theme");
-  const next = current === "light" ? "dark" : "light";
-  document.documentElement.setAttribute("data-theme", next);
-  themeToggle.textContent = next === "light" ? "☀️" : "🌙";
-});
 
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -196,14 +138,14 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   const password = document.getElementById("password").value;
 
   btn.disabled = true;
-  btnContent.innerHTML = '<div class="spinner"></div> Đang xác thực...';
+  btnContent.innerHTML = '<div class="spinner"></div> Đang đăng nhập...';
   errorBox.classList.remove("show");
 
   try {
     const res = await fetch(`${API}/login`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      credentials: "include",
+      credentials: "include",   // ⭐ BẮT BUỘC để server set cookie
       body: JSON.stringify({username, password})
     });
     const data = await res.json();
@@ -214,7 +156,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     errorBox.textContent = "❌ " + err.message;
     errorBox.classList.add("show");
     btn.disabled = false;
-    btnContent.innerHTML = "🔐 Đăng nhập hệ thống";
+    btnContent.innerHTML = "🔐 Đăng nhập";
   }
 });
 </script>
