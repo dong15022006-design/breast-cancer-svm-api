@@ -51,9 +51,15 @@ def create_token(username: str) -> str:
 
 def verify_token(token: str):
     try:
+        # Thử giải mã token nhận được từ cookie
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload.get("sub")
-    except JWTError:
+        username = payload.get("sub")
+        print(f"✅ Giải mã token thành công cho user: {username}")
+        return username
+    except JWTError as e:
+        # ⚠️ In ra lỗi chi tiết để biết tại sao token bị từ chối
+        print(f"❌ Lỗi giải mã JWTError: {e}")
+        print(f"Token nhận được từ trình duyệt: {token}")
         return None
 
 
