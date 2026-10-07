@@ -180,8 +180,8 @@ def predict(payload: PredictionRequest, user: str = Depends(require_auth)):
 # ============ PAGE ============
 
 @app.get("/")
-def index_page(access_token: str = Cookie(None)):
-    """Chưa login → hiện login.html. Đã login → hiện index.html."""
+def index_page(response: Response, access_token: str = Cookie(None)):
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     user = verify_token(access_token) if access_token else None
     if not user:
         return FileResponse(STATIC_DIR / "login.html")
